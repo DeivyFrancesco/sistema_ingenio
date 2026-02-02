@@ -1,0 +1,158 @@
+.matriculas-container {
+    padding: 20px;
+    background: #f8f9fb;
+    min-height: 100vh;
+}
+
+
+/* ---------- FORMULARIO ---------- */
+
+.form {
+    display: grid;
+    gap: 12px;
+    max-width: 420px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.form select,
+.form input,
+.form button {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.form button {
+    background: #1e40af;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.form button:hover {
+    background: #1d4ed8;
+}
+
+
+/* ---------- MENSAJES ---------- */
+
+.mensaje {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: bold;
+}
+
+
+/* ---------- TABLA ---------- */
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ENCABEZADO */
+
+thead {
+    background: #1e3a8a;
+    /* AZUL FUERTE */
+}
+
+thead th {
+    color: white;
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 12px;
+    letter-spacing: 0.5px;
+}
+
+
+/* CUERPO */
+
+tbody td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px;
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background: #f1f5f9;
+}
+
+
+/* ESTADO */
+
+select {
+    background: transparent;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* BOTONES */
+
+button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+
+/* ELIMINAR */
+
+button[title="Eliminar"] {
+    background: #fee2e2;
+}
+
+button[title="Eliminar"]:hover {
+    background: #fecaca;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+    }
+    thead {
+        display: none;
+    }
+    tbody tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    tbody td {
+        display: flex;
+        justify-content: space-between;
+        border: none;
+        padding: 6px 0;
+    }
+    tbody td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #374151;
+    }
+}

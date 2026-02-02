@@ -1,0 +1,64 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background-color: #f4f6f9;
+}
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 230px;
+    background: linear-gradient(180deg, #4f46e5, #4338ca);
+    color: white;
+    padding: 20px;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-link {
+    text-decoration: none;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.menu-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.menu-link.active {
+    background: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+}
+
+
+/* CONTENT */
+
+.content {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    background-color: #f4f6f9;
+}

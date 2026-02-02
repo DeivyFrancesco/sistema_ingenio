@@ -1,0 +1,178 @@
+.pagos-container {
+  padding: 20px;
+}
+
+.btn-cancelar {
+  background: #2962ff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.btn-cancelar:hover {
+  background: #1e4fd6;
+}
+
+.form-card {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+.form-card label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 5px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-card label:first-child {
+  margin-top: 0;
+}
+
+.form-card input,
+.form-card select {
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-card input:focus,
+.form-card select:focus {
+  outline: none;
+  border-color: #2962ff;
+}
+
+.info-mensualidad {
+  background: #fff;
+  border-left: 4px solid #2962ff;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 4px;
+}
+
+.info-mensualidad p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.info-mensualidad .saldo-disponible {
+  color: #f44336;
+  font-weight: bold;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+.btn-guardar {
+  background: #4caf50;
+  color: white;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 15px;
+  font-size: 15px;
+}
+
+.btn-guardar:hover {
+  background: #45a049;
+}
+
+.mensaje {
+  background: #e3f2fd;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border-left: 4px solid #2196f3;
+  font-size: 14px;
+}
+
+.historial-titulo {
+  margin: 30px 0 15px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.pagos-pendientes-box {
+  background: #fff3e0;
+  border: 2px solid #ff9800;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 30px;
+}
+
+.pagos-pendientes-box h3 {
+  color: #e65100;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pagos-pendientes-box table {
+  border: 1px solid #ff9800;
+}
+
+.pagos-pendientes-box thead {
+  background: #ff9800;
+}
+
+.pago-pendiente-row {
+  background: #fff8f0 !important;
+}
+
+.pago-pendiente-row:hover {
+  background: #ffecb3 !important;
+}
+
+.fecha-limite-destacada {
+  color: #d84315;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+thead {
+  background: #3f51b5;
+  color: white;
+}
+
+th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #f5f5f5;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
