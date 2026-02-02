@@ -21,25 +21,29 @@ require("./jobs/mensualidades.job");
 const app = express();
 
 // MIDDLEWARES GLOBALES
-app.use(cors());
+app.use(
+    cors({
+        origin: "*",
+    }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ROOT
 app.get("/", (req, res) => {
-  res.json({
-    message: "🎓 Sistema Ingenio - API REST",
-    version: "1.0.0",
-    status: "activo",
-    endpoints: {
-      alumnos: "/alumnos",
-      cursos: "/cursos",
-      matriculas: "/matriculas",
-      mensualidades: "/mensualidades",
-      pagos: "/pagos",
-      apoderados: "/apoderados",
-    },
-  });
+    res.json({
+        message: "🎓 Sistema Ingenio - API REST",
+        version: "1.0.0",
+        status: "activo",
+        endpoints: {
+            alumnos: "/alumnos",
+            cursos: "/cursos",
+            matriculas: "/matriculas",
+            mensualidades: "/mensualidades",
+            pagos: "/pagos",
+            apoderados: "/apoderados",
+        },
+    });
 });
 
 // ENDPOINTS
@@ -59,11 +63,5 @@ app.use(errorHandler);
 // SERVIDOR
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`
-    ╔════════════════════════════════════════╗
-    ║ 🎓 SISTEMA INGENIO - BACKEND           ║
-    ║ Servidor corriendo en puerto ${PORT}    ║
-    ║ http://localhost:${PORT}                ║
-    ╚════════════════════════════════════════╝
-  `);
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 });
