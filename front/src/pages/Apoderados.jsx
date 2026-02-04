@@ -157,209 +157,100 @@ const Apoderados = () => {
   };
 
   if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Cargando apoderados...</p>
-      </div>
-    );
+    return <p style={{ padding: "20px" }}>Cargando apoderados...</p>;
   }
 
   return (
-    <div className="apoderados-page">
-      <header className="apoderados-header">
-        <h1>👨‍👩‍👧‍👦 Gestión de Apoderados</h1>
-        <button className="btn-nuevo" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancelar" : "➕ Nuevo Apoderado"}
-        </button>
-      </header>
+    <div className="apoderados-container">
+      <h1>👨‍👩‍👧‍👦 Gestión de Apoderados</h1>
 
       {mensaje && <div className="mensaje">{mensaje}</div>}
 
+      <button onClick={() => setShowForm(!showForm)}>
+        {showForm ? "Cancelar" : "Nuevo Apoderado"}
+      </button>
+
       {showForm && (
-        <div className="form-card">
-          <h3>{editId ? "Editar Apoderado" : "Nuevo Apoderado"}</h3>
-          <form onSubmit={guardar}>
-            <div className="form-group">
-              <label>Nombre completo del apoderado *</label>
-              <input
-                name="nombres"
-                placeholder="Nombre completo"
-                value={form.nombres}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <form onSubmit={guardar} className="form">
+          <input
+            name="nombres"
+            placeholder="Nombre completo del apoderado"
+            value={form.nombres}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="telefono"
+            placeholder="Teléfono"
+            value={form.telefono}
+            onChange={handleChange}
+          />
 
-            <div className="form-group">
-              <label>Teléfono</label>
-              <input
-                name="telefono"
-                placeholder="Teléfono"
-                value={form.telefono}
-                onChange={handleChange}
-              />
-            </div>
+          {!editId && (
+            <select
+              name="alumno_id"
+              value={form.alumno_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Seleccione alumno</option>
+              {alumnos.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nombres} {a.apellidos} - DNI {a.dni}
+                </option>
+              ))}
+            </select>
+          )}
 
-            {!editId && (
-              <div className="form-group">
-                <label>Seleccione alumno *</label>
-                <select
-                  name="alumno_id"
-                  value={form.alumno_id}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">-- Seleccionar alumno --</option>
-                  {alumnos.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nombres} {a.apellidos} - DNI {a.dni}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <div className="form-actions">
-              <button type="submit" className="btn-save">
-                {editId ? "Actualizar" : "Guardar"}
-              </button>
-              <button type="button" className="btn-cancel" onClick={resetForm}>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
+          <button type="submit">
+            {editId ? "Actualizar" : "Guardar"}
+          </button>
+        </form>
       )}
 
       <input
-        className="search"
         type="text"
         placeholder="🔍 Buscar apoderado..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginTop: "10px", width: "100%", padding: "8px" }}
       />
 
-      {/* Tabla Desktop */}
-      <div className="table-wrapper">
-        <table>
-          <thead>
+      <table border="1" cellPadding="8" style={{ marginTop: "15px", width: "100%" }}>
+        <thead>
+          <tr>
+            <th>Apoderado</th>
+            <th>Teléfono</th>
+            <th>Alumnos a cargo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {apoderados.length === 0 ? (
             <tr>
-              <th>Apoderado</th>
-              <th>Teléfono</th>
-              <th>Alumnos a cargo</th>
-              <th>Acciones</th>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                {searchTerm ? "No se encontraron resultados" : "No hay apoderados registrados"}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {apoderados.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="no-data">
-                  {searchTerm ? "No se encontraron resultados" : "No hay apoderados registrados"}
-                </td>
-              </tr>
-            ) : (
-              apoderados.map((a) => (
-                <tr key={a.id}>
-                  <td><strong>{a.nombres}</strong></td>
-                  <td>{a.telefono || "-"}</td>
-                  <td>
-                    {a.alumnos && a.alumnos.length > 0 && a.alumnos[0].alumno_id ? (
-                      <div className="alumnos-list">
-                        {a.alumnos.map((alumno, idx) => (
-                          alumno.alumno_id ? (
-                            <div key={idx} className="alumno-item">
-                              <span>
-                                {alumno.alumno_nombres} {alumno.alumno_apellidos}
-                                {alumno.alumno_dni && ` (DNI: ${alumno.alumno_dni})`}
-                              </span>
-                              <button
-                                className="btn-desvincular"
-                                onClick={() => handleDesvincular(a.id, alumno.alumno_id)}
-                                title="Desvincular"
-                              >
-                                ✖️
-                              </button>
-                            </div>
-                          ) : null
-                        ))}
-                        <button
-                          className="btn-vincular-otro"
-                          onClick={() => setShowVincular(showVincular === a.id ? null : a.id)}
-                        >
-                          ➕ Vincular otro alumno
-                        </button>
-                        
-                        {showVincular === a.id && (
-                          <div className="vincular-form">
-                            <select
-                              value={alumnoVincular}
-                              onChange={(e) => setAlumnoVincular(e.target.value)}
-                            >
-                              <option value="">Seleccione alumno</option>
-                              {alumnos.map((al) => (
-                                <option key={al.id} value={al.id}>
-                                  {al.nombres} {al.apellidos} - DNI {al.dni}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              className="btn-vincular-submit"
-                              onClick={() => handleVincular(a.id)}
-                            >
-                              Vincular
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="sin-alumnos">Sin alumnos vinculados</span>
-                    )}
-                  </td>
-                  <td>
-                    <button className="btn-edit" onClick={() => editar(a)} title="Editar">✏️</button>
-                    <button className="btn-delete" onClick={() => eliminar(a.id)} title="Eliminar">🗑️</button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Cards Mobile */}
-      <div className="cards">
-        {apoderados.length === 0 ? (
-          <div className="no-data-mobile">
-            {searchTerm ? "No se encontraron resultados" : "No hay apoderados registrados"}
-          </div>
-        ) : (
-          apoderados.map((a) => (
-            <div className="card" key={a.id}>
-              <div className="card-header">
-                <strong>{a.nombres}</strong>
-                <div className="card-actions">
-                  <button className="btn-edit-small" onClick={() => editar(a)}>✏️</button>
-                  <button className="btn-delete-small" onClick={() => eliminar(a.id)}>🗑️</button>
-                </div>
-              </div>
-              <div className="card-body">
-                <span><strong>📞 Teléfono:</strong> {a.telefono || "-"}</span>
-                
-                <div className="card-alumnos">
-                  <strong>Alumnos a cargo:</strong>
+          ) : (
+            apoderados.map((a) => (
+              <tr key={a.id}>
+                <td><strong>{a.nombres}</strong></td>
+                <td>{a.telefono || "-"}</td>
+                <td>
                   {a.alumnos && a.alumnos.length > 0 && a.alumnos[0].alumno_id ? (
-                    <div className="alumnos-list-mobile">
+                    <div>
                       {a.alumnos.map((alumno, idx) => (
                         alumno.alumno_id ? (
-                          <div key={idx} className="alumno-item-mobile">
+                          <div key={idx} style={{ marginBottom: "5px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span>
-                              • {alumno.alumno_nombres} {alumno.alumno_apellidos}
+                              {alumno.alumno_nombres} {alumno.alumno_apellidos}
                               {alumno.alumno_dni && ` (DNI: ${alumno.alumno_dni})`}
                             </span>
                             <button
-                              className="btn-desvincular-small"
                               onClick={() => handleDesvincular(a.id, alumno.alumno_id)}
+                              style={{ marginLeft: "10px", fontSize: "12px", padding: "2px 6px" }}
+                              title="Desvincular"
                             >
                               ✖️
                             </button>
@@ -367,17 +258,18 @@ const Apoderados = () => {
                         ) : null
                       ))}
                       <button
-                        className="btn-vincular-mobile"
                         onClick={() => setShowVincular(showVincular === a.id ? null : a.id)}
+                        style={{ marginTop: "5px", fontSize: "12px" }}
                       >
-                        ➕ Vincular otro
+                        ➕ Vincular otro alumno
                       </button>
                       
                       {showVincular === a.id && (
-                        <div className="vincular-form-mobile">
+                        <div style={{ marginTop: "10px" }}>
                           <select
                             value={alumnoVincular}
                             onChange={(e) => setAlumnoVincular(e.target.value)}
+                            style={{ padding: "5px", width: "100%" }}
                           >
                             <option value="">Seleccione alumno</option>
                             {alumnos.map((al) => (
@@ -386,21 +278,28 @@ const Apoderados = () => {
                               </option>
                             ))}
                           </select>
-                          <button onClick={() => handleVincular(a.id)}>
+                          <button
+                            onClick={() => handleVincular(a.id)}
+                            style={{ marginTop: "5px", width: "100%" }}
+                          >
                             Vincular
                           </button>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <span className="sin-alumnos">Sin alumnos vinculados</span>
+                    <span style={{ color: "#999" }}>Sin alumnos vinculados</span>
                   )}
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+                </td>
+                <td>
+                  <button onClick={() => editar(a)}>✏️</button>
+                  <button onClick={() => eliminar(a.id)}>🗑️</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
