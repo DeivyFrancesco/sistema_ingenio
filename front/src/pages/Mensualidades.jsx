@@ -17,6 +17,7 @@ export default function Mensualidades() {
   const [mensaje, setMensaje] = useState("");
   const [filtroAlumno, setFiltroAlumno] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     matricula_id: "",
@@ -28,6 +29,7 @@ export default function Mensualidades() {
 
   const cargarDatos = async () => {
     try {
+      setLoading(true);
       const resMens =
         vista === "pendientes"
           ? await getMensualidadesPendientes()
@@ -39,6 +41,8 @@ export default function Mensualidades() {
       setMatriculas(resMat.data.matriculas || resMat.data);
     } catch (err) {
       console.error("Error cargando datos:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +80,8 @@ export default function Mensualidades() {
       !form.monto ||
       !form.fecha_vencimiento
     ) {
-      setMensaje("⚠ Complete todos los campos");
+      setMensaje("⚠️ Complete todos los campos");
+      setTimeout(() => setMensaje(""), 3000);
       return;
     }
 
@@ -86,9 +91,11 @@ export default function Mensualidades() {
       setShowForm(false);
       resetForm();
       cargarDatos();
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
       console.error(err);
       setMensaje("❌ Error al crear mensualidad");
+      setTimeout(() => setMensaje(""), 3000);
     }
   };
 
@@ -104,8 +111,17 @@ export default function Mensualidades() {
 
   const eliminar = async (id) => {
     if (!window.confirm("¿Eliminar mensualidad?")) return;
-    await deleteMensualidad(id);
-    cargarDatos();
+    
+    try {
+      await deleteMensualidad(id);
+      setMensaje("🗑️ Mensualidad eliminada");
+      cargarDatos();
+      setTimeout(() => setMensaje(""), 3000);
+    } catch (error) {
+      console.error(error);
+      setMensaje("❌ Error al eliminar");
+      setTimeout(() => setMensaje(""), 3000);
+    }
   };
 
   const getEstado = (m) => {
@@ -139,9 +155,11 @@ export default function Mensualidades() {
       setMensaje("✅ Fecha actualizada correctamente");
       setEditingId(null);
       cargarDatos();
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
       console.error(err);
       setMensaje("❌ Error al actualizar fecha");
+      setTimeout(() => setMensaje(""), 3000);
     }
   };
 
@@ -154,37 +172,127 @@ export default function Mensualidades() {
     return nombreCompleto.includes(filtroAlumno.toLowerCase());
   });
 
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Cargando mensualidades...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="mensualidades-container">
-      <h1>📅 Gestión de Mensualidades</h1>
+    <div className="mensualidades-page">
+      <header className="mensualidades-header">
+        <h1>📅 Gestión de Mensualidades</h1>
+        <button className="btn-nuevo" onClick={() => setShowForm(!showForm)}>
+          {showForm ? "Cancelar" : "➕ Nueva Mensualidad"}
+        </button>
+      </header>
 
       {mensaje && <div className="mensaje">{mensaje}</div>}
 
-      <div className="barra-superior">
-        <button
-          className="btn-cancelar"
-          onClick={() => setShowForm(!showForm)}
-        >
-          {showForm ? "Cancelar" : "Nueva mensualidad"}
-        </button>
+      {showForm && (
+        <div className="form-card">
+          <h3>Nueva Mensualidad</h3>
+          <form onSubmit={guardar}>
+            <div className="form-group">
+              <label>Seleccione alumno / curso *</label>
+              <select
+                name="matricula_id"
+                value={form.matricula_id}
+                onChange={handleChange}
+                required
+              >
+                <option value="">-- Seleccione alumno / curso --</option>
+                {matriculas.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.nombres} {m.apellidos} — {m.curso}
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Fecha de inicio *</label>
+                <input
+                  type="date"
+                  name="fecha_inicio"
+                  value={form.fecha_inicio}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Periodo (ej: 2026-01) *</label>
+                <input
+                  type="text"
+                  name="periodo"
+                  placeholder="2026-01"
+                  value={form.periodo}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Monto mensual (S/) *</label>
+                <input
+                  type="number"
+                  name="monto"
+                  placeholder="150.00"
+                  value={form.monto}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha de vencimiento *</label>
+                <input
+                  type="date"
+                  name="fecha_vencimiento"
+                  value={form.fecha_vencimiento}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="btn-save">Guardar Mensualidad</button>
+              <button type="button" className="btn-cancel" onClick={() => { setShowForm(false); resetForm(); }}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="filtros-container">
         <input
           type="text"
-          className="filtro-alumno"
-          placeholder="FILTRAR POR ALUMNO"
+          className="search"
+          placeholder="🔍 Filtrar por alumno..."
           value={filtroAlumno}
           onChange={(e) => setFiltroAlumno(e.target.value)}
         />
 
-        <div className="filtros">
+        <div className="vista-botones">
           <button
-            className={vista === "todas" ? "activo" : ""}
+            className={`vista-btn ${vista === "todas" ? "activo" : ""}`}
             onClick={() => setVista("todas")}
           >
             Todas
           </button>
           <button
-            className={vista === "pendientes" ? "activo" : ""}
+            className={`vista-btn ${vista === "pendientes" ? "activo" : ""}`}
             onClick={() => setVista("pendientes")}
           >
             Pendientes
@@ -192,146 +300,120 @@ export default function Mensualidades() {
         </div>
       </div>
 
-      {showForm && (
-        <div className="form-card">
-          <label>Seleccione alumno / curso</label>
-          <select
-            name="matricula_id"
-            value={form.matricula_id}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seleccione alumno / curso</option>
-            {matriculas.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.nombres} {m.apellidos} – {m.curso}
-              </option>
-            ))}
-          </select>
-
-          <label>Fecha de inicio</label>
-          <input
-            type="date"
-            name="fecha_inicio"
-            value={form.fecha_inicio}
-            onChange={handleChange}
-            required
-          />
-
-          <label>Periodo (ej: 2026-01)</label>
-          <input
-            type="text"
-            name="periodo"
-            placeholder="Periodo (ej: 2026-01)"
-            value={form.periodo}
-            onChange={handleChange}
-            required
-          />
-
-          <label>Monto mensual</label>
-          <input
-            type="number"
-            name="monto"
-            placeholder="Monto mensual"
-            value={form.monto}
-            onChange={handleChange}
-            step="0.01"
-            min="0"
-            required
-          />
-
-          <label>Fecha de vencimiento (dd/mm/aaaa)</label>
-          <input
-            type="date"
-            name="fecha_vencimiento"
-            value={form.fecha_vencimiento}
-            onChange={handleChange}
-            required
-          />
-          <small className="fecha-nota">CAMBIALE A FORMATO DIA/HORA FECHA</small>
-
-          <button onClick={guardar} className="btn-guardar">
-            Guardar Mensualidad
-          </button>
-        </div>
-      )}
-
-      <table>
-        <thead>
-          <tr>
-            <th>ALUMNO</th>
-            <th>CURSO</th>
-            <th>PERIODO</th>
-            <th>MONTO</th>
-            <th>PAGADO</th>
-            <th>SALDO</th>
-            <th>VENCE</th>
-            <th>VENCE SALDO</th>
-            <th>ESTADO</th>
-            <th>ACCIONES</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mensualidadesFiltradas.length === 0 ? (
+      {/* Tabla Desktop */}
+      <div className="table-wrapper">
+        <table>
+          <thead>
             <tr>
-              <td colSpan="10" style={{ textAlign: "center" }}>
-                No hay mensualidades
-              </td>
+              <th>Alumno</th>
+              <th>Curso</th>
+              <th>Periodo</th>
+              <th>Monto</th>
+              <th>Pagado</th>
+              <th>Saldo</th>
+              <th>Vence</th>
+              <th>Vence Saldo</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          ) : (
-            mensualidadesFiltradas.map((m) => (
-              <tr key={m.id}>
-                <td>{m.nombres} {m.apellidos}</td>
-                <td>{m.curso}</td>
-                <td>{m.periodo}</td>
-                <td>S/ {Number(m.monto).toFixed(2)}</td>
-                <td>S/ {Number(m.pagado).toFixed(2)}</td>
-                <td className={m.saldo > 0 ? "saldo" : ""}>
-                  S/ {Number(m.saldo).toFixed(2)}
-                </td>
-                <td>
-                  {editingId === m.id ? (
-                    <div className="edicion-fecha">
-                      <input
-                        type="date"
-                        defaultValue={m.fecha_vencimiento}
-                        onBlur={(e) => handleGuardarEdicion(m.id, e.target.value)}
-                        autoFocus
-                      />
-                      <button 
-                        className="btn-cancelar-edicion"
-                        onClick={handleCancelarEdicion}
-                      >
-                        ✖
-                      </button>
-                    </div>
-                  ) : (
-                    <span className="fecha-display">
-                      {formatearFecha(m.fecha_vencimiento)}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  {formatearFechaCompleta(m.fecha_limite_saldo)}
-                </td>
-                <td>
-                  <span className={`estado ${getEstado(m).toLowerCase().replace(" ", "-")}`}>
-                    {getEstado(m)}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn-eliminar"
-                    onClick={() => eliminar(m.id)}
-                  >
-                    🗑️
-                  </button>
+          </thead>
+          <tbody>
+            {mensualidadesFiltradas.length === 0 ? (
+              <tr>
+                <td colSpan="10" className="no-data">
+                  No hay mensualidades
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              mensualidadesFiltradas.map((m) => (
+                <tr key={m.id}>
+                  <td><strong>{m.nombres} {m.apellidos}</strong></td>
+                  <td>{m.curso}</td>
+                  <td>{m.periodo}</td>
+                  <td>S/ {Number(m.monto).toFixed(2)}</td>
+                  <td className="texto-verde">S/ {Number(m.pagado).toFixed(2)}</td>
+                  <td className={m.saldo > 0 ? "texto-rojo" : ""}>
+                    S/ {Number(m.saldo).toFixed(2)}
+                  </td>
+                  <td>
+                    {editingId === m.id ? (
+                      <div className="edicion-fecha">
+                        <input
+                          type="date"
+                          defaultValue={m.fecha_vencimiento}
+                          onBlur={(e) => handleGuardarEdicion(m.id, e.target.value)}
+                          autoFocus
+                        />
+                        <button 
+                          className="btn-cancelar-edicion"
+                          onClick={handleCancelarEdicion}
+                        >
+                          ✖
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="fecha-display">
+                        {formatearFecha(m.fecha_vencimiento)}
+                      </span>
+                    )}
+                  </td>
+                  <td className="fecha-limite">
+                    {formatearFechaCompleta(m.fecha_limite_saldo)}
+                  </td>
+                  <td>
+                    <span className={`badge-estado badge-${getEstado(m).toLowerCase().replace(" ", "-")}`}>
+                      {getEstado(m)}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="btn-delete" onClick={() => eliminar(m.id)} title="Eliminar">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Cards Mobile */}
+      <div className="cards">
+        {mensualidadesFiltradas.length === 0 ? (
+          <div className="no-data-mobile">No hay mensualidades</div>
+        ) : (
+          mensualidadesFiltradas.map((m) => (
+            <div className="card" key={m.id}>
+              <div className="card-header">
+                <div>
+                  <strong>{m.nombres} {m.apellidos}</strong>
+                  <div className="curso-mobile">{m.curso} - {m.periodo}</div>
+                </div>
+                <button className="btn-delete-small" onClick={() => eliminar(m.id)}>
+                  🗑️
+                </button>
+              </div>
+              <div className="card-body">
+                <span><strong>Monto:</strong> S/ {Number(m.monto).toFixed(2)}</span>
+                <span className="texto-verde"><strong>Pagado:</strong> S/ {Number(m.pagado).toFixed(2)}</span>
+                <span className={m.saldo > 0 ? "texto-rojo" : ""}>
+                  <strong>Saldo:</strong> S/ {Number(m.saldo).toFixed(2)}
+                </span>
+                <span><strong>Vence:</strong> {formatearFecha(m.fecha_vencimiento)}</span>
+                <span className="fecha-limite">
+                  <strong>Vence Saldo:</strong> {formatearFechaCompleta(m.fecha_limite_saldo)}
+                </span>
+                <span>
+                  <strong>Estado:</strong>
+                  <span className={`badge-estado badge-${getEstado(m).toLowerCase().replace(" ", "-")}`}>
+                    {getEstado(m)}
+                  </span>
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
