@@ -22,6 +22,13 @@ function App() {
   const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Función para cerrar el sidebar al hacer click en un enlace (móvil)
+  const closeSidebar = () => {
+    if (window.innerWidth <= 768) {
+      setSidebarOpen(false);
+    }
+  };
+
   return (
     <Router>
       <div className={`app-layout ${sidebarOpen ? "sidebar-open" : ""}`}>
@@ -31,16 +38,33 @@ function App() {
               ☰
             </button>
 
+            {/* Overlay para cerrar el sidebar en móvil */}
+            {sidebarOpen && (
+              <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>
+            )}
+
             <aside className="sidebar">
               <h2 className="logo">🎓</h2>
 
               <nav className="menu">
-                <NavLink to="/alumnos" className="menu-link">👨‍🎓 <span>Alumnos</span></NavLink>
-                <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 <span>Apoderados</span></NavLink>
-                <NavLink to="/cursos" className="menu-link">📘 <span>Cursos</span></NavLink>
-                <NavLink to="/matriculas" className="menu-link">📝 <span>Matrículas</span></NavLink>
-                <NavLink to="/mensualidades" className="menu-link">📆 <span>Mensualidades</span></NavLink>
-                <NavLink to="/pagos" className="menu-link">💰 <span>Pagos</span></NavLink>
+                <NavLink to="/alumnos" className="menu-link" onClick={closeSidebar}>
+                  👨‍🎓 <span>Alumnos</span>
+                </NavLink>
+                <NavLink to="/apoderados" className="menu-link" onClick={closeSidebar}>
+                  👨‍👩‍👧 <span>Apoderados</span>
+                </NavLink>
+                <NavLink to="/cursos" className="menu-link" onClick={closeSidebar}>
+                  📘 <span>Cursos</span>
+                </NavLink>
+                <NavLink to="/matriculas" className="menu-link" onClick={closeSidebar}>
+                  📝 <span>Matrículas</span>
+                </NavLink>
+                <NavLink to="/mensualidades" className="menu-link" onClick={closeSidebar}>
+                  📆 <span>Mensualidades</span>
+                </NavLink>
+                <NavLink to="/pagos" className="menu-link" onClick={closeSidebar}>
+                  💰 <span>Pagos</span>
+                </NavLink>
               </nav>
 
               <button

@@ -16,18 +16,117 @@ const Alumnos = () => {
 
   useEffect(() => { cargar(); }, [searchTerm]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editId) {
+        await updateAlumno(editId, form);
+      } else {
+        await createAlumno(form);
+      }
+      setForm({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "" });
+      setEditId(null);
+      setShowForm(false);
+      cargar();
+    } catch (error) {
+      console.error("Error al guardar:", error);
+    }
+  };
+
+  const handleEdit = (alumno) => {
+    setForm({
+      nombres: alumno.nombres,
+      apellidos: alumno.apellidos,
+      dni: alumno.dni,
+      telefono: alumno.telefono || "",
+      grado: alumno.grado || ""
+    });
+    setEditId(alumno.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("¿Estás seguro de eliminar este alumno?")) {
+      try {
+        await deleteAlumno(id);
+        cargar();
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+      }
+    }
+  };
+
   return (
     <div className="alumnos-page">
       <header className="alumnos-header">
         <h1>🎓 Alumnos</h1>
-        <button onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancelar" : "Nuevo"}
+        <button className="btn-nuevo" onClick={() => {
+          setShowForm(!showForm);
+          if (showForm) {
+            setForm({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "" });
+            setEditId(null);
+          }
+        }}>
+          {showForm ? "Cancelar" : "➕ Nuevo"}
         </button>
       </header>
 
+      {showForm && (
+        <form className="alumno-form" onSubmit={handleSubmit}>
+          <h3>{editId ? "Editar Alumno" : "Nuevo Alumno"}</h3>
+          <div className="form-grid">
+            <input
+              type="text"
+              placeholder="Nombres *"
+              value={form.nombres}
+              onChange={(e) => setForm({ ...form, nombres: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Apellidos *"
+              value={form.apellidos}
+              onChange={(e) => setForm({ ...form, apellidos: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="DNI *"
+              value={form.dni}
+              onChange={(e) => setForm({ ...form, dni: e.target.value })}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={form.telefono}
+              onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Grado"
+              value={form.grado}
+              onChange={(e) => setForm({ ...form, grado: e.target.value })}
+            />
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="btn-save">
+              {editId ? "Actualizar" : "Guardar"}
+            </button>
+            <button type="button" className="btn-cancel" onClick={() => {
+              setShowForm(false);
+              setForm({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "" });
+              setEditId(null);
+            }}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      )}
+
       <input
         className="search"
-        placeholder="Buscar alumno..."
+        placeholder="🔍 Buscar alumno..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
@@ -41,36 +140,58 @@ const Alumnos = () => {
               <th>Alumno</th>
               <th>Grado</th>
               <th>Teléfono</th>
-              <th></th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {alumnos.map(a => (
-              <tr key={a.id}>
-                <td>{a.dni}</td>
-                <td>{a.nombres} {a.apellidos}</td>
-                <td>{a.grado || "-"}</td>
-                <td>{a.telefono || "-"}</td>
-                <td>
-                  <button onClick={() => setEditId(a.id)}>✏️</button>
-                  <button onClick={() => deleteAlumno(a.id).then(cargar)}>🗑️</button>
-                </td>
+            {alumnos.length > 0 ? (
+              alumnos.map(a => (
+                <tr key={a.id}>
+                  <td data-label="DNI">{a.dni}</td>
+                  <td data-label="Alumno">{a.nombres} {a.apellidos}</td>
+                  <td data-label="Grado">{a.grado || "-"}</td>
+                  <td data-label="Teléfono">{a.telefono || "-"}</td>
+                  <td data-label="Acciones">
+                    <button className="btn-edit" onClick={() => handleEdit(a)} title="Editar">
+                      ✏️
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(a.id)} title="Eliminar">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="no-data">No hay alumnos registrados</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
       {/* CARDS MOBILE */}
       <div className="cards">
-        {alumnos.map(a => (
-          <div className="card" key={a.id}>
-            <strong>{a.nombres} {a.apellidos}</strong>
-            <span>DNI: {a.dni}</span>
-            <span>Grado: {a.grado || "-"}</span>
-            <span>📞 {a.telefono || "-"}</span>
-          </div>
-        ))}
+        {alumnos.length > 0 ? (
+          alumnos.map(a => (
+            <div className="card" key={a.id}>
+              <div className="card-header">
+                <strong>{a.nombres} {a.apellidos}</strong>
+                <div className="card-actions">
+                  <button className="btn-edit-small" onClick={() => handleEdit(a)}>✏️</button>
+                  <button className="btn-delete-small" onClick={() => handleDelete(a.id)}>🗑️</button>
+                </div>
+              </div>
+              <div className="card-body">
+                <span><strong>DNI:</strong> {a.dni}</span>
+                <span><strong>Grado:</strong> {a.grado || "-"}</span>
+                <span><strong>📞</strong> {a.telefono || "-"}</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="no-data-mobile">No hay alumnos registrados</div>
+        )}
       </div>
     </div>
   );
