@@ -24,27 +24,23 @@ function App() {
 
   return (
     <Router>
-      <div className="app-layout">
+      <div className={`app-layout ${sidebarOpen ? "sidebar-open" : ""}`}>
         {isAuth && (
           <>
-            {/* BOTÓN MOBILE */}
-            <button
-              className="menu-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
+            <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               ☰
             </button>
 
-            <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-              <h2 className="logo">🎓 Ingenio</h2>
+            <aside className="sidebar">
+              <h2 className="logo">🎓</h2>
 
               <nav className="menu">
-                <NavLink to="/alumnos" className="menu-link" onClick={() => setSidebarOpen(false)}>👨‍🎓 Alumnos</NavLink>
-                <NavLink to="/apoderados" className="menu-link" onClick={() => setSidebarOpen(false)}>👨‍👩‍👧 Apoderados</NavLink>
-                <NavLink to="/cursos" className="menu-link" onClick={() => setSidebarOpen(false)}>📘 Cursos</NavLink>
-                <NavLink to="/matriculas" className="menu-link" onClick={() => setSidebarOpen(false)}>📝 Matrículas</NavLink>
-                <NavLink to="/mensualidades" className="menu-link" onClick={() => setSidebarOpen(false)}>📆 Mensualidades</NavLink>
-                <NavLink to="/pagos" className="menu-link" onClick={() => setSidebarOpen(false)}>💰 Pagos</NavLink>
+                <NavLink to="/alumnos" className="menu-link">👨‍🎓 <span>Alumnos</span></NavLink>
+                <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 <span>Apoderados</span></NavLink>
+                <NavLink to="/cursos" className="menu-link">📘 <span>Cursos</span></NavLink>
+                <NavLink to="/matriculas" className="menu-link">📝 <span>Matrículas</span></NavLink>
+                <NavLink to="/mensualidades" className="menu-link">📆 <span>Mensualidades</span></NavLink>
+                <NavLink to="/pagos" className="menu-link">💰 <span>Pagos</span></NavLink>
               </nav>
 
               <button
@@ -54,7 +50,7 @@ function App() {
                   setIsAuth(false);
                 }}
               >
-                🚪 Cerrar sesión
+                🚪 <span>Cerrar sesión</span>
               </button>
             </aside>
           </>
@@ -62,16 +58,8 @@ function App() {
 
         <main className="content">
           <Routes>
-            <Route
-              path="/login"
-              element={
-                isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />
-              }
-            />
-            <Route
-              path="/register"
-              element={isAuth ? <Navigate to="/alumnos" /> : <Register />}
-            />
+            <Route path="/login" element={isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />} />
+            <Route path="/register" element={isAuth ? <Navigate to="/alumnos" /> : <Register />} />
 
             {isAuth ? (
               <>
