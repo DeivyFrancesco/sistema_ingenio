@@ -1,64 +1,152 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    background-color: #f4f6f9;
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background-color: #f4f6f9;
 }
+
+/* ================================
+   LAYOUT GENERAL
+================================ */
 
 .app-layout {
-    display: flex;
-    min-height: 100vh;
+  display: flex;
+  min-height: 100vh;
+  position: relative;
 }
 
+/* ================================
+   BOTÓN HAMBURGUESA (MOBILE)
+================================ */
 
-/* SIDEBAR */
+.menu-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  font-size: 22px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.menu-toggle:hover {
+  background: #4338ca;
+}
+
+/* ================================
+   SIDEBAR
+================================ */
 
 .sidebar {
-    width: 230px;
-    background: linear-gradient(180deg, #4f46e5, #4338ca);
-    color: white;
-    padding: 20px;
+  width: 230px;
+  background: linear-gradient(180deg, #4f46e5, #4338ca);
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
+
+/* LOGO */
 
 .logo {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 22px;
-    font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 22px;
+  font-weight: bold;
 }
 
+/* MENU */
+
 .menu {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
 }
 
 .menu-link {
-    text-decoration: none;
-    color: white;
-    padding: 10px 14px;
-    border-radius: 6px;
-    transition: background 0.2s;
+  text-decoration: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 6px;
+  transition: background 0.2s;
 }
 
 .menu-link:hover {
-    background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .menu-link.active {
-    background: rgba(255, 255, 255, 0.3);
-    font-weight: bold;
+  background: rgba(255, 255, 255, 0.3);
+  font-weight: bold;
 }
 
+/* LOGOUT */
 
-/* CONTENT */
+.logout-btn {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ================================
+   CONTENIDO PRINCIPAL
+================================ */
 
 .content {
-    flex: 1;
-    padding: 25px;
-    overflow-y: auto;
-    background-color: #f4f6f9;
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  background-color: #f4f6f9;
+}
+
+/* ================================
+   RESPONSIVE - MOBILE
+================================ */
+
+@media (max-width: 768px) {
+
+  /* Mostrar botón hamburguesa */
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Sidebar oculto por defecto */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100vh;
+    width: 230px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  /* Sidebar visible */
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Espacio para el botón hamburguesa */
+  .content {
+    padding: 70px 15px 20px;
+  }
 }
