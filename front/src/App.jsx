@@ -22,7 +22,9 @@ function App() {
   const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Función para cerrar el sidebar al hacer click en un enlace (móvil)
+  // 🔍 LOG PARA VER LA API URL
+  console.log("API URL:", import.meta.env.VITE_API_URL);
+
   const closeSidebar = () => {
     if (window.innerWidth <= 768) {
       setSidebarOpen(false);
@@ -34,13 +36,18 @@ function App() {
       <div className={`app-layout ${sidebarOpen ? "sidebar-open" : ""}`}>
         {isAuth && (
           <>
-            <button className="menu-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button
+              className="menu-toggle"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
               ☰
             </button>
 
-            {/* Overlay para cerrar el sidebar en móvil */}
             {sidebarOpen && (
-              <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>
+              <div
+                className="sidebar-overlay"
+                onClick={() => setSidebarOpen(false)}
+              />
             )}
 
             <aside className="sidebar">
@@ -50,18 +57,27 @@ function App() {
                 <NavLink to="/alumnos" className="menu-link" onClick={closeSidebar}>
                   👨‍🎓 <span>Alumnos</span>
                 </NavLink>
+
                 <NavLink to="/apoderados" className="menu-link" onClick={closeSidebar}>
                   👨‍👩‍👧 <span>Apoderados</span>
                 </NavLink>
+
                 <NavLink to="/cursos" className="menu-link" onClick={closeSidebar}>
                   📘 <span>Cursos</span>
                 </NavLink>
+
                 <NavLink to="/matriculas" className="menu-link" onClick={closeSidebar}>
                   📝 <span>Matrículas</span>
                 </NavLink>
-                <NavLink to="/mensualidades" className="menu-link" onClick={closeSidebar}>
+
+                <NavLink
+                  to="/mensualidades"
+                  className="menu-link"
+                  onClick={closeSidebar}
+                >
                   📆 <span>Mensualidades</span>
                 </NavLink>
+
                 <NavLink to="/pagos" className="menu-link" onClick={closeSidebar}>
                   💰 <span>Pagos</span>
                 </NavLink>
@@ -82,8 +98,21 @@ function App() {
 
         <main className="content">
           <Routes>
-            <Route path="/login" element={isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />} />
-            <Route path="/register" element={isAuth ? <Navigate to="/alumnos" /> : <Register />} />
+            <Route
+              path="/login"
+              element={
+                isAuth ? (
+                  <Navigate to="/alumnos" />
+                ) : (
+                  <Login setIsAuth={setIsAuth} />
+                )
+              }
+            />
+
+            <Route
+              path="/register"
+              element={isAuth ? <Navigate to="/alumnos" /> : <Register />}
+            />
 
             {isAuth ? (
               <>
