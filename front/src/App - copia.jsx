@@ -1,5 +1,4 @@
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   NavLink,
@@ -7,86 +6,118 @@ import {
 } from "react-router-dom";
 import { useState } from "react";
 
-import Alumnos from "./pages/Alumnos";
-import Apoderados from "./pages/Apoderados";
-import Cursos from "./pages/Cursos";
-import Pagos from "./pages/Pagos";
-import Matriculas from "./pages/Matriculas";
+/* PÁGINAS */
+import Alumnos       from "./pages/Alumnos";
+import Apoderados    from "./pages/Apoderados";
+import Cursos        from "./pages/Cursos";
+import Pagos         from "./pages/Pagos";
+import Matriculas    from "./pages/Matriculas";
 import Mensualidades from "./pages/Mensualidades";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Usuarios      from "./pages/Usuarios";
+import Login         from "./pages/Login";
+import Register      from "./pages/Register";
+import Asistencias   from "./pages/Asistencias";
+import ReporteAsistencia from "./pages/ReporteAsistencia"; // 👈 renombrado
 
 import "./App.css";
 
+/* 🔹 Obtener rol del token */
+const getRol = () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    return JSON.parse(atob(token.split(".")[1])).rol;
+  } catch {
+    return null;
+  }
+};
+
 function App() {
-  const [isAuth, setIsAuth] = useState(
-    !!localStorage.getItem("token")
-  );
+  const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
+  const rol = getRol();
 
   return (
-    <Router>
-      <div className="app-layout">
+    <div className="app-layout">
 
-        {isAuth && (
-          <aside className="sidebar">
-            <h2 className="logo">🎓 Ingenio</h2>
+      {/* SIDEBAR */}
+      {isAuth && (
+        <aside className="sidebar">
+          <h2 className="logo">🎓 Ingenio</h2>
 
-            <nav className="menu">
-              <NavLink to="/alumnos" className="menu-link">👨‍🎓 Alumnos</NavLink>
-              <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
-              <NavLink to="/cursos" className="menu-link">📘 Cursos</NavLink>
-              <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
-              <NavLink to="/mensualidades" className="menu-link">📆 Mensualidades</NavLink>
-              <NavLink to="/pagos" className="menu-link">💰 Pagos</NavLink>
-            </nav>
+          {/* Badge de rol */}
+          {rol && (
+            <p className="rol-badge">
+              {rol === "admin" ? "👑 Administrador" : "👤 Usuario"}
+            </p>
+          )}
 
-            <button
-              className="logout-btn"
-              onClick={() => {
-                localStorage.removeItem("token");
-                setIsAuth(false);
-              }}
-            >
-              🚪 Cerrar sesión
-            </button>
-          </aside>
-        )}
+          <nav className="menu">
+            <NavLink to="/alumnos"    className="menu-link">👨‍🎓 Alumnos</NavLink>
+            <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
+            <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
+            <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
 
-        <main className="content">
-          <Routes>
-
-            <Route
-              path="/login"
-              element={
-                isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />
-              }
-            />
-
-            <Route
-              path="/register"
-              element={
-                isAuth ? <Navigate to="/alumnos" /> : <Register />
-              }
-            />
-
-            {isAuth ? (
+            {/* 🔒 SOLO ADMIN */}
+            {rol === "admin" && (
               <>
-                <Route path="/" element={<Navigate to="/alumnos" />} />
-                <Route path="/alumnos" element={<Alumnos />} />
-                <Route path="/apoderados" element={<Apoderados />} />
-                <Route path="/cursos" element={<Cursos />} />
-                <Route path="/matriculas" element={<Matriculas />} />
-                <Route path="/mensualidades" element={<Mensualidades />} />
-                <Route path="/pagos" element={<Pagos />} />
+                <div className="menu-divider" />
+                <NavLink to="/asistencias"         className="menu-link">📋 Asistencias</NavLink>
+                <NavLink to="/reporte-asistencia"  className="menu-link">📊 Reporte Asistencia</NavLink>
+                <NavLink to="/mensualidades"       className="menu-link">📆 Mensualidades</NavLink>
+                <NavLink to="/pagos"               className="menu-link">💰 Pagos</NavLink>
+                <NavLink to="/usuarios"            className="menu-link">👥 Usuarios</NavLink>
               </>
-            ) : (
-              <Route path="*" element={<Navigate to="/login" />} />
             )}
+          </nav>
 
-          </Routes>
-        </main>
-      </div>
-    </Router>
+          <button
+            className="logout-btn"
+            onClick={() => {
+              localStorage.removeItem("token");
+              setIsAuth(false);
+            }}
+          >
+            🚪 Cerrar sesión
+          </button>
+        </aside>
+      )}
+
+      {/* CONTENIDO */}
+      <main className="content">
+        <Routes>
+          {/* PÚBLICAS */}
+          <Route path="/login"    element={isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />} />
+          <Route path="/register" element={isAuth ? <Navigate to="/alumnos" /> : <Register />} />
+
+          {/* PRIVADAS */}
+          {isAuth ? (
+            <>
+              <Route path="/"           element={<Navigate to="/alumnos" />} />
+              <Route path="/alumnos"    element={<Alumnos />} />
+              <Route path="/apoderados" element={<Apoderados />} />
+              <Route path="/cursos"     element={<Cursos />} />
+              <Route path="/matriculas" element={<Matriculas />} />
+
+              {/* 🔒 SOLO ADMIN */}
+              {rol === "admin" && (
+                <>
+                  <Route path="/asistencias"        element={<Asistencias />} />
+                  <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
+                  <Route path="/mensualidades"      element={<Mensualidades />} />
+                  <Route path="/pagos"              element={<Pagos />} />
+                  <Route path="/usuarios"           element={<Usuarios />} />
+                </>
+              )}
+
+              {/* Ruta antigua por si alguien tiene guardada la URL */}
+              <Route path="/reporte-alumno" element={<Navigate to="/reporte-asistencia" />} />
+            </>
+          ) : (
+            <Route path="*" element={<Navigate to="/login" />} />
+          )}
+        </Routes>
+      </main>
+    </div>
   );
 }
 

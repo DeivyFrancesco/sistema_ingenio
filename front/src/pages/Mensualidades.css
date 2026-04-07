@@ -238,13 +238,14 @@ tr.fila-parcial    { background-color: #fff8f0; }
 tr.fila-pendiente  { background-color: #fffcf8; }
 
 /* ── CELDAS ── */
-.td-alumno   { font-weight: 700; color: var(--gray-900); font-size: 14px; }
-.td-num      { font-variant-numeric: tabular-nums; font-weight: 600; }
-.td-pagado   { color: var(--green); }
-.td-saldo    { color: var(--red); font-weight: 700; }
+.td-alumno    { font-weight: 700; color: var(--gray-900); font-size: 14px; }
+.td-apoderado { font-size: 13px; color: var(--gray-500); font-weight: 500; }
+.td-num       { font-variant-numeric: tabular-nums; font-weight: 600; }
+.td-pagado    { color: var(--green); }
+.td-saldo     { color: var(--red); font-weight: 700; }
 .td-saldo-cero { color: var(--gray-400); }
-.td-fecha    { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
-.sin-dato    { color: var(--gray-400); }
+.td-fecha     { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+.sin-dato     { color: var(--gray-400); }
 
 .fecha-limite-ok      { color: var(--green); font-weight: 600; font-size: 13px; }
 .fecha-limite-vencida { color: var(--red);   font-weight: 600; font-size: 13px; }
@@ -307,7 +308,7 @@ tr.fila-form-pago td {
 }
 
 /* ── ACCIONES ── */
-.acciones { display: flex; gap: 6px; align-items: center; }
+.acciones { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
 .btn-pagar {
   display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px;
@@ -319,6 +320,17 @@ tr.fila-form-pago td {
 .btn-pagar:hover { background: var(--green); color: var(--white); }
 .btn-pagar-activo { background: var(--indigo); color: var(--white); border-color: var(--indigo); }
 .btn-pagar-activo:hover { background: var(--indigo-dark); }
+
+/* ── BOTÓN IMPRIMIR / PDF ── */
+.btn-imprimir {
+  display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px;
+  border: 1px solid #c7d2fe; border-radius: 6px;
+  background: var(--indigo-soft); color: var(--indigo);
+  font-size: 13px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-imprimir:hover { background: var(--indigo); color: var(--white); border-color: var(--indigo); }
+.btn-imprimir:active { transform: scale(.97); }
 
 .btn-eliminar {
   display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px;

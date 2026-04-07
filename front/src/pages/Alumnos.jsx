@@ -10,9 +10,27 @@ import {
 const GRADOS = ["Inicial", "1°", "2°", "3°", "4°", "5°", "6°", "Primaria", "Secundaria"];
 const PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
+// Días de la semana (0 = lunes, 6 = domingo)
+const DIAS_SEMANA = [
+  { valor: 0, nombre: "Lunes", abrev: "L" },
+  { valor: 1, nombre: "Martes", abrev: "M" },
+  { valor: 2, nombre: "Miércoles", abrev: "Mi" },
+  { valor: 3, nombre: "Jueves", abrev: "J" },
+  { valor: 4, nombre: "Viernes", abrev: "V" },
+  { valor: 5, nombre: "Sábado", abrev: "S" },
+  { valor: 6, nombre: "Domingo", abrev: "D" },
+];
+
 const Alumnos = () => {
   const [alumnos, setAlumnos] = useState([]);
-  const [form, setForm] = useState({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "" });
+  const [form, setForm] = useState({
+    nombres: "",
+    apellidos: "",
+    dni: "",
+    telefono: "",
+    grado: "",
+    dias_asistencia: [], // array de números (días)
+  });
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [gradoFilter, setGradoFilter] = useState("");
@@ -41,12 +59,10 @@ const Alumnos = () => {
     }
   };
 
-  // Carga inicial
   useEffect(() => {
     cargarAlumnos(false);
   }, []);
 
-  // Búsqueda con debounce — no desmonta el componente
   useEffect(() => {
     const timer = setTimeout(() => {
       cargarAlumnos(true);
@@ -54,7 +70,6 @@ const Alumnos = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Reset page on filter change
   useEffect(() => { setPage(1); }, [searchTerm, gradoFilter, sortField, sortDir]);
 
   const showMsg = (text, type = "success") => {
@@ -63,6 +78,14 @@ const Alumnos = () => {
   };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleDiasChange = (valor) => {
+    const current = form.dias_asistencia || [];
+    const newDias = current.includes(valor)
+      ? current.filter(v => v !== valor)
+      : [...current, valor];
+    setForm({ ...form, dias_asistencia: newDias });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,7 +106,14 @@ const Alumnos = () => {
   };
 
   const handleEdit = (alumno) => {
-    setForm({ nombres: alumno.nombres, apellidos: alumno.apellidos, dni: alumno.dni, telefono: alumno.telefono || "", grado: alumno.grado || "" });
+    setForm({
+      nombres: alumno.nombres,
+      apellidos: alumno.apellidos,
+      dni: alumno.dni,
+      telefono: alumno.telefono || "",
+      grado: alumno.grado || "",
+      dias_asistencia: alumno.dias_asistencia || [],
+    });
     setEditId(alumno.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -102,7 +132,14 @@ const Alumnos = () => {
   };
 
   const resetForm = () => {
-    setForm({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "" });
+    setForm({
+      nombres: "",
+      apellidos: "",
+      dni: "",
+      telefono: "",
+      grado: "",
+      dias_asistencia: [],
+    });
     setEditId(null);
     setShowForm(false);
   };
@@ -117,7 +154,6 @@ const Alumnos = () => {
     return sortDir === "asc" ? " ↑" : " ↓";
   };
 
-  // Filter + sort
   const filtered = useMemo(() => {
     let list = [...alumnos];
     if (gradoFilter) list = list.filter(a => a.grado === gradoFilter);
@@ -129,12 +165,18 @@ const Alumnos = () => {
     return list;
   }, [alumnos, gradoFilter, sortField, sortDir]);
 
-  // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
 
   const getInitials = (nombres, apellidos) => {
     return `${(nombres || "")[0] || ""}${(apellidos || "")[0] || ""}`.toUpperCase();
+  };
+
+  const getDiasAsistenciaTexto = (diasArray) => {
+    if (!diasArray || diasArray.length === 0) return "Todos los días";
+    return diasArray
+      .map(v => DIAS_SEMANA.find(d => d.valor === v)?.abrev || "")
+      .join(", ");
   };
 
   const getPageNumbers = () => {
@@ -159,7 +201,6 @@ const Alumnos = () => {
 
   return (
     <div className="alumnos-container">
-      {/* HEADER */}
       <div className="al-header">
         <div className="al-header-left">
           <div className="al-icon-box">🎓</div>
@@ -173,10 +214,8 @@ const Alumnos = () => {
         </button>
       </div>
 
-      {/* MENSAJE */}
       {mensaje.text && <div className={`mensaje ${mensaje.type}`}>{mensaje.text}</div>}
 
-      {/* FORMULARIO */}
       {showForm && (
         <div className="form-card">
           <h3 className="form-card-title">
@@ -207,6 +246,22 @@ const Alumnos = () => {
                   {GRADOS.map(g => <option key={g} value={g}>{g}</option>)}
                 </select>
               </div>
+              <div className="form-group dias-asistencia-group">
+                <label>Días de asistencia</label>
+                <div className="dias-checkboxes">
+                  {DIAS_SEMANA.map(d => (
+                    <label key={d.valor} className="dia-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={form.dias_asistencia.includes(d.valor)}
+                        onChange={() => handleDiasChange(d.valor)}
+                      />
+                      {d.nombre}
+                    </label>
+                  ))}
+                </div>
+                <small>Dejar vacío para asistencia todos los días</small>
+              </div>
             </div>
             <div className="form-actions">
               <button type="submit" className="btn-save">
@@ -220,7 +275,6 @@ const Alumnos = () => {
         </div>
       )}
 
-      {/* TOOLBAR */}
       <div className="al-toolbar">
         <div className="search-wrap">
           <span className="search-icon">{searching ? "⏳" : "🔍"}</span>
@@ -244,7 +298,6 @@ const Alumnos = () => {
         </div>
       </div>
 
-      {/* TABLA */}
       <div className="table-card">
         <div className="table-top">
           <h3>📋 Lista de Alumnos</h3>
@@ -260,13 +313,14 @@ const Alumnos = () => {
                 <th className="sortable" onClick={() => toggleSort("apellidos")}>Alumno{sortIcon("apellidos")}</th>
                 <th className="sortable" onClick={() => toggleSort("grado")}>Grado{sortIcon("grado")}</th>
                 <th>Teléfono</th>
+                <th>Días de Asistencia</th>
                 <th style={{ textAlign: "center" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan="6">
+                  <td colSpan="7">
                     <div className="empty-state">
                       <div className="empty-icon">🔎</div>
                       <p>{searchTerm || gradoFilter ? "No se encontraron resultados" : "No hay alumnos registrados"}</p>
@@ -293,6 +347,9 @@ const Alumnos = () => {
                     </td>
                     <td style={{ color: "#64748b" }}>{a.telefono || <span style={{ color: "#cbd5e1" }}>—</span>}</td>
                     <td>
+                      <span className="dias-badge">{getDiasAsistenciaTexto(a.dias_asistencia)}</span>
+                    </td>
+                    <td>
                       <div className="actions-cell">
                         <button className="btn-edit" onClick={() => handleEdit(a)} title="Editar">✏️</button>
                         <button className="btn-delete" onClick={() => handleDelete(a.id)} title="Eliminar">🗑️</button>
@@ -305,7 +362,6 @@ const Alumnos = () => {
           </table>
         </div>
 
-        {/* PAGINACIÓN */}
         {filtered.length > 0 && (
           <div className="pagination-bar">
             <div className="pagination-info">

@@ -21,6 +21,7 @@ exports.listar = async(req, res, next) => {
         me.created_at,
         a.nombres,
         a.apellidos,
+        ap.nombres AS apoderado,
         c.nombre AS curso,
         COALESCE(SUM(p.monto), 0)                        AS pagado,
         MIN(p.fecha_pago)                                 AS fecha_primer_pago,
@@ -46,10 +47,12 @@ exports.listar = async(req, res, next) => {
         me.fecha_vencimiento - CURRENT_DATE AS dias_para_vencer
 
       FROM mensualidades me
-      JOIN matriculas   m ON m.id = me.matricula_id
-      JOIN alumnos      a ON a.id = m.alumno_id
-      JOIN cursos       c ON c.id = m.curso_id
-      LEFT JOIN pagos   p ON p.mensualidad_id = me.id
+      JOIN matriculas        m  ON m.id  = me.matricula_id
+      JOIN alumnos           a  ON a.id  = m.alumno_id
+      JOIN cursos            c  ON c.id  = m.curso_id
+      LEFT JOIN alumno_apoderado aa ON aa.alumno_id    = a.id
+      LEFT JOIN apoderados       ap ON ap.id           = aa.apoderado_id
+      LEFT JOIN pagos            p  ON p.mensualidad_id = me.id
     `;
 
         const params = [];
@@ -59,7 +62,7 @@ exports.listar = async(req, res, next) => {
         }
 
         sql += `
-      GROUP BY me.id, a.nombres, a.apellidos, c.nombre
+      GROUP BY me.id, a.nombres, a.apellidos, ap.nombres, c.nombre
       ORDER BY a.apellidos ASC, a.nombres ASC, me.fecha_vencimiento DESC
     `;
 
@@ -86,6 +89,7 @@ exports.pendientes = async(req, res, next) => {
         me.fecha_limite_saldo,
         a.nombres,
         a.apellidos,
+        ap.nombres AS apoderado,
         c.nombre AS curso,
         me.monto - COALESCE(SUM(p.monto), 0) AS saldo,
 
@@ -100,12 +104,14 @@ exports.pendientes = async(req, res, next) => {
         ) AS por_vencer
 
       FROM mensualidades me
-      JOIN matriculas   m ON m.id = me.matricula_id
-      JOIN alumnos      a ON a.id = m.alumno_id
-      JOIN cursos       c ON c.id = m.curso_id
-      LEFT JOIN pagos   p ON p.mensualidad_id = me.id
+      JOIN matriculas        m  ON m.id  = me.matricula_id
+      JOIN alumnos           a  ON a.id  = m.alumno_id
+      JOIN cursos            c  ON c.id  = m.curso_id
+      LEFT JOIN alumno_apoderado aa ON aa.alumno_id    = a.id
+      LEFT JOIN apoderados       ap ON ap.id           = aa.apoderado_id
+      LEFT JOIN pagos            p  ON p.mensualidad_id = me.id
 
-      GROUP BY me.id, a.nombres, a.apellidos, c.nombre
+      GROUP BY me.id, a.nombres, a.apellidos, ap.nombres, c.nombre
       HAVING me.monto - COALESCE(SUM(p.monto), 0) > 0
       ORDER BY me.fecha_vencimiento DESC
     `);

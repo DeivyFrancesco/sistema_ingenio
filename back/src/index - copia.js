@@ -11,6 +11,8 @@ const pagosRoutes = require("./routes/pagos.routes");
 const apoderadosRoutes = require("./routes/apoderados.routes");
 const reportesRoutes = require("./routes/reportes.routes");
 const authRoutes = require("./routes/auth.routes");
+const usuariosRoutes = require("./routes/usuarios.routes");
+const asistenciasRoutes = require("./routes/asistencias.routes");
 
 // MIDDLEWARES
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
@@ -27,19 +29,20 @@ app.use(express.urlencoded({ extended: true }));
 
 // ROOT
 app.get("/", (req, res) => {
-  res.json({
-    message: "🎓 Sistema Ingenio - API REST",
-    version: "1.0.0",
-    status: "activo",
-    endpoints: {
-      alumnos: "/alumnos",
-      cursos: "/cursos",
-      matriculas: "/matriculas",
-      mensualidades: "/mensualidades",
-      pagos: "/pagos",
-      apoderados: "/apoderados",
-    },
-  });
+    res.json({
+        message: "🎓 Sistema Ingenio - API REST",
+        version: "1.0.0",
+        status: "activo",
+        endpoints: {
+            alumnos: "/alumnos",
+            cursos: "/cursos",
+            matriculas: "/matriculas",
+            mensualidades: "/mensualidades",
+            pagos: "/pagos",
+            apoderados: "/apoderados",
+            usuarios: "/usuarios", // 👈 OPCIONAL PERO RECOMENDADO
+        },
+    });
 });
 
 // ENDPOINTS
@@ -51,6 +54,8 @@ app.use("/pagos", pagosRoutes);
 app.use("/apoderados", apoderadosRoutes);
 app.use("/reportes", reportesRoutes);
 app.use("/auth", authRoutes);
+app.use("/usuarios", usuariosRoutes);
+app.use("/asistencias", asistenciasRoutes);
 
 // MANEJO DE ERRORES (debe ir al final)
 app.use(notFound);
@@ -59,7 +64,7 @@ app.use(errorHandler);
 // SERVIDOR
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`
+    console.log(`
     ╔════════════════════════════════════════╗
     ║ 🎓 SISTEMA INGENIO - BACKEND           ║
     ║ Servidor corriendo en puerto ${PORT}    ║
