@@ -3,16 +3,17 @@ const cors = require("cors");
 require("dotenv").config();
 
 // RUTAS
-const alumnosRoutes = require("./routes/alumnos.routes");
-const cursosRoutes = require("./routes/cursos.routes");
-const matriculasRoutes = require("./routes/matriculas.routes");
+const alumnosRoutes      = require("./routes/alumnos.routes");
+const cursosRoutes       = require("./routes/cursos.routes");
+const matriculasRoutes   = require("./routes/matriculas.routes");
 const mensualidadesRoutes = require("./routes/mensualidades.routes");
-const pagosRoutes = require("./routes/pagos.routes");
-const apoderadosRoutes = require("./routes/apoderados.routes");
-const reportesRoutes = require("./routes/reportes.routes");
-const authRoutes = require("./routes/auth.routes");
-const usuariosRoutes = require("./routes/usuarios.routes");
-const asistenciasRoutes = require("./routes/asistencias.routes");
+const pagosRoutes        = require("./routes/pagos.routes");
+const apoderadosRoutes   = require("./routes/apoderados.routes");
+const reportesRoutes     = require("./routes/reportes.routes");
+const authRoutes         = require("./routes/auth.routes");
+const usuariosRoutes     = require("./routes/usuarios.routes");
+const asistenciasRoutes  = require("./routes/asistencias.routes");
+const prospectosRoutes   = require("./routes/prospectos.routes"); // 👈 NUEVO
 
 // MIDDLEWARES
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
@@ -34,28 +35,30 @@ app.get("/", (req, res) => {
         version: "1.0.0",
         status: "activo",
         endpoints: {
-            alumnos: "/alumnos",
-            cursos: "/cursos",
-            matriculas: "/matriculas",
-            mensualidades: "/mensualidades",
-            pagos: "/pagos",
-            apoderados: "/apoderados",
-            usuarios: "/usuarios", // 👈 OPCIONAL PERO RECOMENDADO
+            alumnos:      "/alumnos",
+            cursos:       "/cursos",
+            matriculas:   "/matriculas",
+            mensualidades:"/mensualidades",
+            pagos:        "/pagos",
+            apoderados:   "/apoderados",
+            usuarios:     "/usuarios",
+            prospectos:   "/prospectos", // 👈 NUEVO
         },
     });
 });
 
 // ENDPOINTS
-app.use("/alumnos", alumnosRoutes);
-app.use("/cursos", cursosRoutes);
-app.use("/matriculas", matriculasRoutes);
+app.use("/alumnos",       alumnosRoutes);
+app.use("/cursos",        cursosRoutes);
+app.use("/matriculas",    matriculasRoutes);
 app.use("/mensualidades", mensualidadesRoutes);
-app.use("/pagos", pagosRoutes);
-app.use("/apoderados", apoderadosRoutes);
-app.use("/reportes", reportesRoutes);
-app.use("/auth", authRoutes);
-app.use("/usuarios", usuariosRoutes);
-app.use("/asistencias", asistenciasRoutes);
+app.use("/pagos",         pagosRoutes);
+app.use("/apoderados",    apoderadosRoutes);
+app.use("/reportes",      reportesRoutes);
+app.use("/auth",          authRoutes);
+app.use("/usuarios",      usuariosRoutes);
+app.use("/asistencias",   asistenciasRoutes);
+app.use("/prospectos",    prospectosRoutes); // 👈 NUEVO
 
 // MANEJO DE ERRORES (debe ir al final)
 app.use(notFound);
