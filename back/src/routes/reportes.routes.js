@@ -4,7 +4,21 @@ const {
     alumnosMorosos,
     ingresosPorPeriodo,
     estadisticasGenerales,
+    dashboardResumen,
 } = require("../utils/reportes");
+
+/**
+ * OBTENER DASHBOARD DE REPORTES
+ */
+router.get("/dashboard", async (req, res) => {
+    try {
+        const data = await dashboardResumen();
+        res.json(data);
+    } catch (error) {
+        console.error("Error al obtener dashboard de reportes:", error);
+        res.status(500).json({ error: "Error al obtener dashboard de reportes" });
+    }
+});
 
 /**
  * OBTENER ALUMNOS MOROSOS

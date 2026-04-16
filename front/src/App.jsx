@@ -18,6 +18,7 @@ import Login             from "./pages/Login";
 import Register          from "./pages/Register";
 import Asistencias       from "./pages/Asistencias";
 import ReporteAsistencia from "./pages/ReporteAsistencia";
+import Reportes          from "./pages/Reportes";
 import Prospectos        from "./pages/Prospectos";
 
 import "./App.css";
@@ -68,6 +69,7 @@ function App() {
                 <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
                 <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
                 <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
+                <NavLink to="/reportes"   className="menu-link">📊 Reportes</NavLink>
                 <NavLink to="/prospectos" className="menu-link">🌟 Prospectos</NavLink>
 
                 {/* 🔒 SOLO ADMIN */}
@@ -111,6 +113,7 @@ function App() {
 
               {/* 👇 AGREGADO: ruta reporte accesible para todos los roles */}
               <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
+              <Route path="/reportes" element={<Reportes />} />
 
               {/* Solo no-visitantes ven el resto */}
               {rol !== "visitante" && (

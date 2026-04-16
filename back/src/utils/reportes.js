@@ -86,8 +86,41 @@ const estadisticasGenerales = async() => {
     };
 };
 
+const dashboardResumen = async () => {
+    const [alumnos, cursos, matriculasActivas, ingresosMes, alumnosMorosos, mensualidadesVencidas, mensualidadesPendientes] = await Promise.all([
+        pool.query("SELECT COUNT(*) as total FROM alumnos"),
+        pool.query("SELECT COUNT(*) as total FROM cursos"),
+        pool.query("SELECT COUNT(*) as total FROM matriculas WHERE estado = 'ACTIVO'"),
+        pool.query(
+            `SELECT COALESCE(SUM(monto), 0) as total
+             FROM pagos
+             WHERE EXTRACT(MONTH FROM fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE)
+             AND EXTRACT(YEAR FROM fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)`
+        ),
+        pool.query(
+            `SELECT COUNT(DISTINCT m.alumno_id) AS total
+             FROM mensualidades men
+             JOIN matriculas m ON m.id = men.matricula_id
+             WHERE men.estado = 'VENCIDO'`
+        ),
+        pool.query("SELECT COUNT(*) as total FROM mensualidades WHERE estado = 'VENCIDO'"),
+        pool.query("SELECT COUNT(*) as total FROM mensualidades WHERE estado = 'PENDIENTE'"),
+    ]);
+
+    return {
+        total_alumnos: parseInt(alumnos.rows[0].total),
+        total_cursos: parseInt(cursos.rows[0].total),
+        matriculas_activas: parseInt(matriculasActivas.rows[0].total),
+        ingresos_mes_actual: parseFloat(ingresosMes.rows[0].total),
+        alumnos_morosos: parseInt(alumnosMorosos.rows[0].total),
+        mensualidades_vencidas: parseInt(mensualidadesVencidas.rows[0].total),
+        mensualidades_pendientes: parseInt(mensualidadesPendientes.rows[0].total),
+    };
+};
+
 module.exports = {
     alumnosMorosos,
     ingresosPorPeriodo,
     estadisticasGenerales,
+    dashboardResumen,
 };
