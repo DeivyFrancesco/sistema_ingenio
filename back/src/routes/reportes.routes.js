@@ -23,7 +23,7 @@ router.get("/dashboard", async (req, res) => {
 /**
  * OBTENER ALUMNOS MOROSOS
  */
-router.get("/morosos", async(req, res) => {
+router.get("/morosos", async (req, res) => {
     try {
         const data = await alumnosMorosos();
         res.json(data);
@@ -37,7 +37,7 @@ router.get("/morosos", async(req, res) => {
  * OBTENER INGRESOS POR PERIODO
  * Query params: anio (requerido), mes (opcional)
  */
-router.get("/ingresos", async(req, res) => {
+router.get("/ingresos", async (req, res) => {
     try {
         const { anio, mes } = req.query;
 
@@ -61,7 +61,7 @@ router.get("/ingresos", async(req, res) => {
 /**
  * OBTENER ESTADÍSTICAS GENERALES
  */
-router.get("/estadisticas", async(req, res) => {
+router.get("/estadisticas", async (req, res) => {
     try {
         const data = await estadisticasGenerales();
         res.json(data);
