@@ -458,3 +458,15 @@ tr.fila-form-pago td {
   0%, 100% { transform: scale(1);    opacity: 1; }
   50%       { transform: scale(1.06); opacity: 0.85; }
 }
+
+/* ── BOTÓN EDITAR ── */
+.btn-editar {
+  display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px;
+  border: 1px solid #fcd34d; border-radius: 6px;
+  background: var(--amber-soft); color: var(--amber);
+  font-size: 13px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.btn-editar:hover { background: var(--amber); color: var(--white); border-color: var(--amber); }
+.btn-editar:active { transform: scale(.97); }
+.btn-editar-activo { background: var(--amber); color: var(--white); border-color: var(--amber); }

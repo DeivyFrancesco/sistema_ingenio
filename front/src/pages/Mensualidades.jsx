@@ -3,6 +3,8 @@ import "./Mensualidades.css";
 import {
   getMensualidades,
   createMensualidad,
+  updateMensualidad,
+  deleteMensualidad,
 } from "../services/mensualidades.service";
 import { createPago } from "../services/pagos.service";
 import { getMatriculas } from "../services/matriculas.service";
@@ -385,12 +387,103 @@ const FormPagoInline = ({ mensualidad, onClose, onSuccess }) => {
   );
 };
 
+/* ── FORM EDITAR INLINE ── */
+const FormEditarInline = ({ mensualidad, onClose, onSuccess }) => {
+  const [form, setForm] = useState({
+    periodo:           mensualidad.periodo || "",
+    monto:             mensualidad.monto || "",
+    fecha_inicio:      mensualidad.fecha_inicio?.slice(0, 10) || "",
+    fecha_vencimiento: mensualidad.fecha_vencimiento?.slice(0, 10) || "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+
+    if (name === "fecha_inicio") {
+      const d = new Date(value);
+      const periodo = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      setForm((p) => ({ ...p, [name]: value, periodo }));
+    }
+  };
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    await updateMensualidad(mensualidad.id, form);
+    onSuccess();
+  };
+
+  return (
+    <tr className="fila-form-pago">
+      <td colSpan="11">
+        <form className="form-pago-inline" onSubmit={guardar}>
+          <div className="fpi-titulo">
+            <span>✏️ Editar mensualidad —</span>
+            <span className="fpi-alumno">{mensualidad.nombres} {mensualidad.apellidos}</span>
+            <span className="fpi-periodo">{mensualidad.curso}</span>
+          </div>
+          <div className="fpi-grid">
+            <div className="fpi-group">
+              <label>Fecha de inicio</label>
+              <input
+                type="date"
+                name="fecha_inicio"
+                value={form.fecha_inicio}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="fpi-group">
+              <label>Fecha de vencimiento</label>
+              <input
+                type="date"
+                name="fecha_vencimiento"
+                value={form.fecha_vencimiento}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="fpi-group">
+              <label>Periodo</label>
+              <input
+                type="text"
+                name="periodo"
+                value={form.periodo}
+                onChange={handleChange}
+                placeholder="Ej: 2026-03"
+                required
+              />
+            </div>
+            <div className="fpi-group">
+              <label>Monto (S/)</label>
+              <input
+                type="number"
+                name="monto"
+                value={form.monto}
+                onChange={handleChange}
+                min="0.01"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+          <div className="fpi-actions">
+            <button type="button" className="btn-cancelar" onClick={onClose}>Cancelar</button>
+            <button className="btn-guardar">Guardar cambios</button>
+          </div>
+        </form>
+      </td>
+    </tr>
+  );
+};
+
 /* COMPONENTE PRINCIPAL */
 export default function Mensualidades() {
   const [mensualidades, setMensualidades] = useState([]);
   const [matriculas, setMatriculas] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [pagoActivo, setPagoActivo] = useState(null);
+  const [editActivo, setEditActivo] = useState(null);
 
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroMes, setFiltroMes] = useState("");
@@ -428,6 +521,25 @@ export default function Mensualidades() {
     setShowForm(false);
     setForm({ matricula_id: "", periodo: "", monto: "", fecha_inicio: hoy(), fecha_vencimiento: "" });
     cargar();
+  };
+
+  const handleEliminar = async (m) => {
+    const confirmar = window.confirm(
+      `¿Eliminar la mensualidad de ${m.nombres} ${m.apellidos} (${m.periodo})?\n\nEsta acción no se puede deshacer.`
+    );
+    if (!confirmar) return;
+    await deleteMensualidad(m.id);
+    cargar();
+  };
+
+  const handleAbrirEditar = (id) => {
+    setPagoActivo(null);   // cierra pago si estaba abierto
+    setEditActivo((prev) => (prev === id ? null : id));
+  };
+
+  const handleAbrirPago = (id) => {
+    setEditActivo(null);   // cierra editar si estaba abierto
+    setPagoActivo((prev) => (prev === id ? null : id));
   };
 
   const counts = contarEstados(mensualidades);
@@ -609,7 +721,10 @@ export default function Mensualidades() {
                     <td>
                       <div className="acciones">
                         {estado !== "PAGADO" && (
-                          <button className="btn-pagar" onClick={() => setPagoActivo(m.id)}>
+                          <button
+                            className={`btn-pagar${pagoActivo === m.id ? " btn-pagar-activo" : ""}`}
+                            onClick={() => handleAbrirPago(m.id)}
+                          >
                             💵 Pagar
                           </button>
                         )}
@@ -620,6 +735,20 @@ export default function Mensualidades() {
                         >
                           🖨️ PDF
                         </button>
+                        <button
+                          className={`btn-editar${editActivo === m.id ? " btn-editar-activo" : ""}`}
+                          title="Editar mensualidad"
+                          onClick={() => handleAbrirEditar(m.id)}
+                        >
+                          ✏️ Editar
+                        </button>
+                        <button
+                          className="btn-eliminar"
+                          title="Eliminar mensualidad"
+                          onClick={() => handleEliminar(m)}
+                        >
+                          🗑️ Eliminar
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -629,6 +758,14 @@ export default function Mensualidades() {
                       mensualidad={m}
                       onClose={() => setPagoActivo(null)}
                       onSuccess={() => { setPagoActivo(null); cargar(); }}
+                    />
+                  )}
+
+                  {editActivo === m.id && (
+                    <FormEditarInline
+                      mensualidad={m}
+                      onClose={() => setEditActivo(null)}
+                      onSuccess={() => { setEditActivo(null); cargar(); }}
                     />
                   )}
                 </React.Fragment>
