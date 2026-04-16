@@ -7,17 +7,18 @@ import {
 import { useState } from "react";
 
 /* PÁGINAS */
-import Alumnos       from "./pages/Alumnos";
-import Apoderados    from "./pages/Apoderados";
-import Cursos        from "./pages/Cursos";
-import Pagos         from "./pages/Pagos";
-import Matriculas    from "./pages/Matriculas";
-import Mensualidades from "./pages/Mensualidades";
-import Usuarios      from "./pages/Usuarios";
-import Login         from "./pages/Login";
-import Register      from "./pages/Register";
-import Asistencias   from "./pages/Asistencias";
-import ReporteAsistencia from "./pages/ReporteAsistencia"; // 👈 renombrado
+import Alumnos           from "./pages/Alumnos";
+import Apoderados        from "./pages/Apoderados";
+import Cursos            from "./pages/Cursos";
+import Pagos             from "./pages/Pagos";
+import Matriculas        from "./pages/Matriculas";
+import Mensualidades     from "./pages/Mensualidades";
+import Usuarios          from "./pages/Usuarios";
+import Login             from "./pages/Login";
+import Register          from "./pages/Register";
+import Asistencias       from "./pages/Asistencias";
+import ReporteAsistencia from "./pages/ReporteAsistencia";
+import Prospectos        from "./pages/Prospectos"; // 👈 NUEVO
 
 import "./App.css";
 
@@ -56,16 +57,17 @@ function App() {
             <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
             <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
             <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
+            <NavLink to="/prospectos" className="menu-link">🌟 Prospectos</NavLink>{/* 👈 NUEVO */}
 
             {/* 🔒 SOLO ADMIN */}
             {rol === "admin" && (
               <>
                 <div className="menu-divider" />
-                <NavLink to="/asistencias"         className="menu-link">📋 Asistencias</NavLink>
-                <NavLink to="/reporte-asistencia"  className="menu-link">📊 Reporte Asistencia</NavLink>
-                <NavLink to="/mensualidades"       className="menu-link">📆 Mensualidades</NavLink>
-                <NavLink to="/pagos"               className="menu-link">💰 Pagos</NavLink>
-                <NavLink to="/usuarios"            className="menu-link">👥 Usuarios</NavLink>
+                <NavLink to="/asistencias"        className="menu-link">📋 Asistencias</NavLink>
+                <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
+                <NavLink to="/mensualidades"      className="menu-link">📆 Mensualidades</NavLink>
+                <NavLink to="/pagos"              className="menu-link">💰 Pagos</NavLink>
+                <NavLink to="/usuarios"           className="menu-link">👥 Usuarios</NavLink>
               </>
             )}
           </nav>
@@ -97,6 +99,7 @@ function App() {
               <Route path="/apoderados" element={<Apoderados />} />
               <Route path="/cursos"     element={<Cursos />} />
               <Route path="/matriculas" element={<Matriculas />} />
+              <Route path="/prospectos" element={<Prospectos />} />{/* 👈 NUEVO */}
 
               {/* 🔒 SOLO ADMIN */}
               {rol === "admin" && (

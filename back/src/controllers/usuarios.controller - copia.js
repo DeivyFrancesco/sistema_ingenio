@@ -21,7 +21,7 @@ exports.crear = async (req, res, next) => {
     if (!username || !password || !rol)
       return res.status(400).json({ message: "Faltan campos obligatorios" });
 
-    const rolesValidos = ["admin", "secretaria", "profesor", "visitante"];
+    const rolesValidos = ["admin", "secretaria", "profesor"];
     if (!rolesValidos.includes(rol))
       return res.status(400).json({ message: `Rol inválido. Usa: ${rolesValidos.join(", ")}` });
 
@@ -50,7 +50,7 @@ exports.actualizar = async (req, res, next) => {
     const { rol, estado, password } = req.body;
     const { id } = req.params;
 
-    const rolesValidos = ["admin", "secretaria", "profesor", "visitante"];
+    const rolesValidos = ["admin", "secretaria", "profesor"];
     if (rol && !rolesValidos.includes(rol))
       return res.status(400).json({ message: `Rol inválido. Usa: ${rolesValidos.join(", ")}` });
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import "./Usuarios.css";
 
-const ROLES = ["admin", "secretaria", "profesor", "visitante"];
+const ROLES = ["admin", "secretaria", "profesor"];
 
 const Usuarios = () => {
   const [usuarios, setUsuarios] = useState([]);

@@ -18,7 +18,7 @@ import Login             from "./pages/Login";
 import Register          from "./pages/Register";
 import Asistencias       from "./pages/Asistencias";
 import ReporteAsistencia from "./pages/ReporteAsistencia";
-import Prospectos        from "./pages/Prospectos"; // 👈 NUEVO
+import Prospectos        from "./pages/Prospectos";
 
 import "./App.css";
 
@@ -37,6 +37,9 @@ function App() {
   const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
   const rol = getRol();
 
+  // 👇 AGREGADO: home según rol
+  const home = rol === "visitante" ? "/reporte-asistencia" : "/alumnos";
+
   return (
     <div className="app-layout">
 
@@ -48,26 +51,36 @@ function App() {
           {/* Badge de rol */}
           {rol && (
             <p className="rol-badge">
-              {rol === "admin" ? "👑 Administrador" : "👤 Usuario"}
+              {rol === "admin"      ? "👑 Administrador"
+             : rol === "visitante" ? "👁️ Visitante"
+             : "👤 Usuario"}
             </p>
           )}
 
           <nav className="menu">
-            <NavLink to="/alumnos"    className="menu-link">👨‍🎓 Alumnos</NavLink>
-            <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
-            <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
-            <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
-            <NavLink to="/prospectos" className="menu-link">🌟 Prospectos</NavLink>{/* 👈 NUEVO */}
 
-            {/* 🔒 SOLO ADMIN */}
-            {rol === "admin" && (
+            {/* 👇 AGREGADO: visitante solo ve reporte */}
+            {rol === "visitante" ? (
+              <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
+            ) : (
               <>
-                <div className="menu-divider" />
-                <NavLink to="/asistencias"        className="menu-link">📋 Asistencias</NavLink>
-                <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
-                <NavLink to="/mensualidades"      className="menu-link">📆 Mensualidades</NavLink>
-                <NavLink to="/pagos"              className="menu-link">💰 Pagos</NavLink>
-                <NavLink to="/usuarios"           className="menu-link">👥 Usuarios</NavLink>
+                <NavLink to="/alumnos"    className="menu-link">👨‍🎓 Alumnos</NavLink>
+                <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
+                <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
+                <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
+                <NavLink to="/prospectos" className="menu-link">🌟 Prospectos</NavLink>
+
+                {/* 🔒 SOLO ADMIN */}
+                {rol === "admin" && (
+                  <>
+                    <div className="menu-divider" />
+                    <NavLink to="/asistencias"        className="menu-link">📋 Asistencias</NavLink>
+                    <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
+                    <NavLink to="/mensualidades"      className="menu-link">📆 Mensualidades</NavLink>
+                    <NavLink to="/pagos"              className="menu-link">💰 Pagos</NavLink>
+                    <NavLink to="/usuarios"           className="menu-link">👥 Usuarios</NavLink>
+                  </>
+                )}
               </>
             )}
           </nav>
@@ -88,32 +101,43 @@ function App() {
       <main className="content">
         <Routes>
           {/* PÚBLICAS */}
-          <Route path="/login"    element={isAuth ? <Navigate to="/alumnos" /> : <Login setIsAuth={setIsAuth} />} />
-          <Route path="/register" element={isAuth ? <Navigate to="/alumnos" /> : <Register />} />
+          <Route path="/login"    element={isAuth ? <Navigate to={home} /> : <Login setIsAuth={setIsAuth} />} />
+          <Route path="/register" element={isAuth ? <Navigate to={home} /> : <Register />} />
 
           {/* PRIVADAS */}
           {isAuth ? (
             <>
-              <Route path="/"           element={<Navigate to="/alumnos" />} />
-              <Route path="/alumnos"    element={<Alumnos />} />
-              <Route path="/apoderados" element={<Apoderados />} />
-              <Route path="/cursos"     element={<Cursos />} />
-              <Route path="/matriculas" element={<Matriculas />} />
-              <Route path="/prospectos" element={<Prospectos />} />{/* 👈 NUEVO */}
+              <Route path="/" element={<Navigate to={home} />} />
 
-              {/* 🔒 SOLO ADMIN */}
-              {rol === "admin" && (
+              {/* 👇 AGREGADO: ruta reporte accesible para todos los roles */}
+              <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
+
+              {/* Solo no-visitantes ven el resto */}
+              {rol !== "visitante" && (
                 <>
-                  <Route path="/asistencias"        element={<Asistencias />} />
-                  <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
-                  <Route path="/mensualidades"      element={<Mensualidades />} />
-                  <Route path="/pagos"              element={<Pagos />} />
-                  <Route path="/usuarios"           element={<Usuarios />} />
+                  <Route path="/alumnos"    element={<Alumnos />} />
+                  <Route path="/apoderados" element={<Apoderados />} />
+                  <Route path="/cursos"     element={<Cursos />} />
+                  <Route path="/matriculas" element={<Matriculas />} />
+                  <Route path="/prospectos" element={<Prospectos />} />
+
+                  {/* 🔒 SOLO ADMIN */}
+                  {rol === "admin" && (
+                    <>
+                      <Route path="/asistencias"        element={<Asistencias />} />
+                      <Route path="/mensualidades"      element={<Mensualidades />} />
+                      <Route path="/pagos"              element={<Pagos />} />
+                      <Route path="/usuarios"           element={<Usuarios />} />
+                    </>
+                  )}
                 </>
               )}
 
               {/* Ruta antigua por si alguien tiene guardada la URL */}
               <Route path="/reporte-alumno" element={<Navigate to="/reporte-asistencia" />} />
+
+              {/* 👇 AGREGADO: cualquier ruta inválida → home del rol */}
+              <Route path="*" element={<Navigate to={home} />} />
             </>
           ) : (
             <Route path="*" element={<Navigate to="/login" />} />
