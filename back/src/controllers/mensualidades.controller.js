@@ -153,6 +153,39 @@ exports.crear = async(req, res, next) => {
 };
 
 /**
+ * ACTUALIZAR
+ */
+exports.actualizar = async(req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { periodo, monto, fecha_inicio, fecha_vencimiento } = req.body;
+
+        if (!periodo || !monto || !fecha_inicio || !fecha_vencimiento) {
+            return res.status(400).json({ message: "Faltan campos obligatorios" });
+        }
+
+        const { rows } = await pool.query(
+            `UPDATE mensualidades
+         SET periodo           = $1,
+             monto             = $2,
+             fecha_inicio      = $3,
+             fecha_vencimiento = $4
+       WHERE id = $5
+       RETURNING *`,
+            [periodo, monto, fecha_inicio, fecha_vencimiento, id],
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Mensualidad no encontrada" });
+        }
+
+        res.json(rows[0]);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
  * ELIMINAR
  */
 exports.eliminar = async(req, res, next) => {
