@@ -22,7 +22,6 @@ const listarPorFecha = async (req, res) => {
             JOIN LATERAL (
                 SELECT id FROM matriculas
                 WHERE alumno_id = a.id
-                AND estado = 'activo'
                 ORDER BY id DESC
                 LIMIT 1
             ) m ON true
@@ -98,15 +97,15 @@ const marcarAsistencia = async (req, res) => {
       return res.status(400).json({ error: "Estado no válido" });
     }
 
-    // Obtener la matrícula activa más reciente del alumno
+    // Obtener la matrícula más reciente del alumno
     const matResult = await pool.query(
-      "SELECT id FROM matriculas WHERE alumno_id = $1 AND estado = 'activo' ORDER BY id DESC LIMIT 1",
+      "SELECT id FROM matriculas WHERE alumno_id = $1 ORDER BY id DESC LIMIT 1",
       [alumno_id]
     );
 
     if (matResult.rows.length === 0) {
       return res.status(400).json({
-        error: "El alumno no tiene matrícula activa registrada o fue retirado",
+        error: "El alumno no tiene matrícula registrada",
       });
     }
 
@@ -162,7 +161,7 @@ const marcarLote = async (req, res) => {
 
     for (const alumno_id of alumno_ids) {
       const matResult = await client.query(
-        "SELECT id FROM matriculas WHERE alumno_id = $1 AND estado = 'activo' ORDER BY id DESC LIMIT 1",
+        "SELECT id FROM matriculas WHERE alumno_id = $1 ORDER BY id DESC LIMIT 1",
         [alumno_id]
       );
 
@@ -228,7 +227,7 @@ const reporte = async (req, res) => {
         ast.hora_ingreso,
         ast.nota
       FROM alumnos a
-      JOIN matriculas m   ON m.alumno_id   = a.id AND m.estado = 'activo'
+      JOIN matriculas m   ON m.alumno_id   = a.id
       JOIN asistencias ast ON ast.matricula_id = m.id
       WHERE ast.fecha BETWEEN $1 AND $2
     `;
