@@ -4,25 +4,25 @@ const pool = require("../db/connection");
  * OBTENER ALUMNOS MOROSOS
  * Solo incluye alumnos activos (no retirados)
  */
-const alumnosMorosos = async() => {
+const alumnosMorosos = async () => {
     const result = await pool.query(`
-    SELECT DISTINCT
-      a.id,
-      a.nombres,
-      a.apellidos,
-      a.dni,
-      a.telefono,
-      COUNT(men.id) AS mensualidades_vencidas,
-      SUM(c.precio_base) AS deuda_total
-    FROM alumnos a
-    JOIN matriculas m ON m.alumno_id = a.id
-    JOIN cursos c ON c.id = m.curso_id
-    JOIN mensualidades men ON men.matricula_id = m.id
-    WHERE men.estado = 'VENCIDO'
-      AND a.activo = true
-    GROUP BY a.id, a.nombres, a.apellidos, a.dni, a.telefono
-    ORDER BY mensualidades_vencidas DESC
-  `);
+        SELECT DISTINCT
+          a.id,
+          a.nombres,
+          a.apellidos,
+          a.dni,
+          a.telefono,
+          COUNT(men.id) AS mensualidades_vencidas,
+          SUM(c.precio_base) AS deuda_total
+        FROM alumnos a
+        JOIN matriculas m ON m.alumno_id = a.id
+        JOIN cursos c ON c.id = m.curso_id
+        JOIN mensualidades men ON men.matricula_id = m.id
+        WHERE men.estado = 'VENCIDO'
+          AND a.activo = true
+        GROUP BY a.id, a.nombres, a.apellidos, a.dni, a.telefono
+        ORDER BY mensualidades_vencidas DESC
+    `);
 
     return result.rows;
 };
@@ -30,15 +30,15 @@ const alumnosMorosos = async() => {
 /**
  * INGRESOS POR MES/AÑO
  */
-const ingresosPorPeriodo = async(anio, mes = null) => {
+const ingresosPorPeriodo = async (anio, mes = null) => {
     let query = `
-    SELECT 
-      TO_CHAR(p.fecha_pago, 'YYYY-MM') AS periodo,
-      COUNT(p.id) AS total_pagos,
-      SUM(p.monto) AS total_ingresos
-    FROM pagos p
-    WHERE EXTRACT(YEAR FROM p.fecha_pago) = $1
-  `;
+        SELECT 
+          TO_CHAR(p.fecha_pago, 'YYYY-MM') AS periodo,
+          COUNT(p.id) AS total_pagos,
+          SUM(p.monto) AS total_ingresos
+        FROM pagos p
+        WHERE EXTRACT(YEAR FROM p.fecha_pago) = $1
+    `;
 
     const params = [anio];
 
@@ -48,9 +48,9 @@ const ingresosPorPeriodo = async(anio, mes = null) => {
     }
 
     query += `
-    GROUP BY TO_CHAR(p.fecha_pago, 'YYYY-MM')
-    ORDER BY periodo DESC
-  `;
+        GROUP BY TO_CHAR(p.fecha_pago, 'YYYY-MM')
+        ORDER BY periodo DESC
+    `;
 
     const result = await pool.query(query, params);
     return result.rows;
@@ -60,35 +60,44 @@ const ingresosPorPeriodo = async(anio, mes = null) => {
  * ESTADÍSTICAS GENERALES
  * Solo cuenta alumnos activos
  */
-const estadisticasGenerales = async() => {
-    const alumnos = await pool.query("SELECT COUNT(*) as total FROM alumnos WHERE activo = true");
-    const cursos = await pool.query("SELECT COUNT(*) as total FROM cursos");
-    const matriculasActivas = await pool.query(
-        `SELECT COUNT(*) as total 
-         FROM matriculas m
-         JOIN alumnos a ON a.id = m.alumno_id
-         WHERE m.estado = 'ACTIVO' AND a.activo = true`
+const estadisticasGenerales = async () => {
+    const alumnos = await pool.query(
+        "SELECT COUNT(*) as total FROM alumnos WHERE activo = true"
     );
-    const mensualidadesPendientes = await pool.query(
-        `SELECT COUNT(*) as total 
-         FROM mensualidades men
-         JOIN matriculas m ON m.id = men.matricula_id
-         JOIN alumnos a ON a.id = m.alumno_id
-         WHERE men.estado = 'PENDIENTE' AND a.activo = true`
+
+    const cursos = await pool.query(
+        "SELECT COUNT(*) as total FROM cursos"
     );
-    const mensualidadesVencidas = await pool.query(
-        `SELECT COUNT(*) as total 
-         FROM mensualidades men
-         JOIN matriculas m ON m.id = men.matricula_id
-         JOIN alumnos a ON a.id = m.alumno_id
-         WHERE men.estado = 'VENCIDO' AND a.activo = true`
-    );
-    const ingresosDelMes = await pool.query(
-        `SELECT COALESCE(SUM(monto), 0) as total 
-     FROM pagos 
-     WHERE EXTRACT(MONTH FROM fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE)
-     AND EXTRACT(YEAR FROM fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)`
-    );
+
+    const matriculasActivas = await pool.query(`
+        SELECT COUNT(*) as total 
+        FROM matriculas m
+        JOIN alumnos a ON a.id = m.alumno_id
+        WHERE m.estado = 'ACTIVO' AND a.activo = true
+    `);
+
+    const mensualidadesPendientes = await pool.query(`
+        SELECT COUNT(*) as total 
+        FROM mensualidades men
+        JOIN matriculas m ON m.id = men.matricula_id
+        JOIN alumnos a ON a.id = m.alumno_id
+        WHERE men.estado = 'PENDIENTE' AND a.activo = true
+    `);
+
+    const mensualidadesVencidas = await pool.query(`
+        SELECT COUNT(*) as total 
+        FROM mensualidades men
+        JOIN matriculas m ON m.id = men.matricula_id
+        JOIN alumnos a ON a.id = m.alumno_id
+        WHERE men.estado = 'VENCIDO' AND a.activo = true
+    `);
+
+    const ingresosDelMes = await pool.query(`
+        SELECT COALESCE(SUM(monto), 0) as total 
+        FROM pagos 
+        WHERE EXTRACT(MONTH FROM fecha_pago) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM fecha_pago) = EXTRACT(YEAR FROM CURRENT_DATE)
+    `);
 
     return {
         total_alumnos: parseInt(alumnos.rows[0].total),
@@ -100,8 +109,24 @@ const estadisticasGenerales = async() => {
     };
 };
 
+/**
+ * DASHBOARD RESUMEN (🔥 ESTE ERA EL QUE FALTABA)
+ */
+const dashboardResumen = async () => {
+    const estadisticas = await estadisticasGenerales();
+    const ingresos = await ingresosPorPeriodo(new Date().getFullYear());
+    const morosos = await alumnosMorosos();
+
+    return {
+        estadisticas,
+        ingresos,
+        morosos,
+    };
+};
+
 module.exports = {
     alumnosMorosos,
     ingresosPorPeriodo,
     estadisticasGenerales,
+    dashboardResumen,
 };
