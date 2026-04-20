@@ -5,49 +5,48 @@ import {
   createAlumno,
   updateAlumno,
   deleteAlumno,
+  toggleAlumnoActivo,
 } from "../services/alumnos.service";
 
 const GRADOS = ["Inicial", "1°", "2°", "3°", "4°", "5°", "6°", "Primaria", "Secundaria"];
 const PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
-// Días de la semana (0 = lunes, 6 = domingo)
 const DIAS_SEMANA = [
-  { valor: 0, nombre: "Lunes", abrev: "L" },
-  { valor: 1, nombre: "Martes", abrev: "M" },
+  { valor: 0, nombre: "Lunes",     abrev: "L" },
+  { valor: 1, nombre: "Martes",    abrev: "M" },
   { valor: 2, nombre: "Miércoles", abrev: "Mi" },
-  { valor: 3, nombre: "Jueves", abrev: "J" },
-  { valor: 4, nombre: "Viernes", abrev: "V" },
-  { valor: 5, nombre: "Sábado", abrev: "S" },
-  { valor: 6, nombre: "Domingo", abrev: "D" },
+  { valor: 3, nombre: "Jueves",    abrev: "J" },
+  { valor: 4, nombre: "Viernes",   abrev: "V" },
+  { valor: 5, nombre: "Sábado",    abrev: "S" },
+  { valor: 6, nombre: "Domingo",   abrev: "D" },
 ];
 
 const Alumnos = () => {
-  const [alumnos, setAlumnos] = useState([]);
-  const [form, setForm] = useState({
-    nombres: "",
-    apellidos: "",
-    dni: "",
-    telefono: "",
-    grado: "",
-    dias_asistencia: [], // array de números (días)
+  const [alumnos, setAlumnos]           = useState([]);
+  const [form, setForm]                 = useState({
+    nombres: "", apellidos: "", dni: "", telefono: "", grado: "", dias_asistencia: [],
   });
-  const [editId, setEditId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [gradoFilter, setGradoFilter] = useState("");
-  const [sortField, setSortField] = useState("apellidos");
-  const [sortDir, setSortDir] = useState("asc");
-  const [showForm, setShowForm] = useState(false);
-  const [mensaje, setMensaje] = useState({ text: "", type: "" });
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [searching, setSearching] = useState(false);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [editId, setEditId]             = useState(null);
+  const [searchTerm, setSearchTerm]     = useState("");
+  const [gradoFilter, setGradoFilter]   = useState("");
+  const [sortField, setSortField]       = useState("apellidos");
+  const [sortDir, setSortDir]           = useState("asc");
+  const [showForm, setShowForm]         = useState(false);
+  const [mensaje, setMensaje]           = useState({ text: "", type: "" });
+  const [initialLoad, setInitialLoad]   = useState(true);
+  const [searching, setSearching]       = useState(false);
+  const [page, setPage]                 = useState(1);
+  const [perPage, setPerPage]           = useState(10);
+  const [mostrarRetirados, setMostrarRetirados] = useState(false);
 
   const cargarAlumnos = async (isSearch = false) => {
     try {
       if (isSearch) setSearching(true);
       else setInitialLoad(true);
-      const params = searchTerm ? { buscar: searchTerm } : {};
+      const params = {
+        ...(searchTerm ? { buscar: searchTerm } : {}),
+        ...(mostrarRetirados ? { incluir_inactivos: "true" } : {}),
+      };
       const res = await getAlumnos(params);
       setAlumnos(res.data.alumnos || res.data);
     } catch (error) {
@@ -61,7 +60,7 @@ const Alumnos = () => {
 
   useEffect(() => {
     cargarAlumnos(false);
-  }, []);
+  }, [mostrarRetirados]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,15 +69,14 @@ const Alumnos = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => { setPage(1); }, [searchTerm, gradoFilter, sortField, sortDir]);
+  useEffect(() => { setPage(1); }, [searchTerm, gradoFilter, sortField, sortDir, mostrarRetirados]);
 
   const showMsg = (text, type = "success") => {
     setMensaje({ text, type });
     setTimeout(() => setMensaje({ text: "", type: "" }), 3500);
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
+  const handleChange   = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const handleDiasChange = (valor) => {
     const current = form.dias_asistencia || [];
     const newDias = current.includes(valor)
@@ -107,11 +105,11 @@ const Alumnos = () => {
 
   const handleEdit = (alumno) => {
     setForm({
-      nombres: alumno.nombres,
-      apellidos: alumno.apellidos,
-      dni: alumno.dni,
-      telefono: alumno.telefono || "",
-      grado: alumno.grado || "",
+      nombres:         alumno.nombres,
+      apellidos:       alumno.apellidos,
+      dni:             alumno.dni,
+      telefono:        alumno.telefono || "",
+      grado:           alumno.grado || "",
       dias_asistencia: alumno.dias_asistencia || [],
     });
     setEditId(alumno.id);
@@ -120,7 +118,7 @@ const Alumnos = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar este alumno?")) return;
+    if (!window.confirm("¿Eliminar este alumno permanentemente? Esta acción no se puede deshacer.\n\nSi solo quieres retirarlo, usa el botón 🚫.")) return;
     try {
       await deleteAlumno(id);
       showMsg("🗑️ Alumno eliminado", "info");
@@ -131,15 +129,27 @@ const Alumnos = () => {
     }
   };
 
+  const handleToggleActivo = async (alumno) => {
+    const esActivo = alumno.activo !== false;
+    const accion   = esActivo ? "retirar" : "habilitar";
+    if (!window.confirm(`¿Deseas ${accion} a ${alumno.nombres} ${alumno.apellidos}?`)) return;
+    try {
+      await toggleAlumnoActivo(alumno.id);
+      showMsg(
+        esActivo
+          ? `🚫 ${alumno.nombres} marcado como retirado`
+          : `✅ ${alumno.nombres} habilitado nuevamente`,
+        esActivo ? "info" : "success"
+      );
+      cargarAlumnos();
+    } catch (error) {
+      const msg = error.response?.data?.error || "Error al cambiar estado";
+      showMsg(`❌ ${msg}`, "error");
+    }
+  };
+
   const resetForm = () => {
-    setForm({
-      nombres: "",
-      apellidos: "",
-      dni: "",
-      telefono: "",
-      grado: "",
-      dias_asistencia: [],
-    });
+    setForm({ nombres: "", apellidos: "", dni: "", telefono: "", grado: "", dias_asistencia: [] });
     setEditId(null);
     setShowForm(false);
   };
@@ -166,11 +176,10 @@ const Alumnos = () => {
   }, [alumnos, gradoFilter, sortField, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+  const paginated  = filtered.slice((page - 1) * perPage, page * perPage);
 
-  const getInitials = (nombres, apellidos) => {
-    return `${(nombres || "")[0] || ""}${(apellidos || "")[0] || ""}`.toUpperCase();
-  };
+  const getInitials = (nombres, apellidos) =>
+    `${(nombres || "")[0] || ""}${(apellidos || "")[0] || ""}`.toUpperCase();
 
   const getDiasAsistenciaTexto = (diasArray) => {
     if (!diasArray || diasArray.length === 0) return "Todos los días";
@@ -187,6 +196,8 @@ const Alumnos = () => {
     }
     return pages;
   };
+
+  const retiradosCount = alumnos.filter(a => a.activo === false).length;
 
   if (initialLoad) {
     return (
@@ -206,12 +217,31 @@ const Alumnos = () => {
           <div className="al-icon-box">🎓</div>
           <div>
             <h1 className="al-title">Gestión de Alumnos</h1>
-            <p className="al-subtitle">{alumnos.length} alumno{alumnos.length !== 1 ? "s" : ""} registrado{alumnos.length !== 1 ? "s" : ""}</p>
+            <p className="al-subtitle">
+              {alumnos.filter(a => a.activo !== false).length} alumno{alumnos.filter(a => a.activo !== false).length !== 1 ? "s" : ""} activo{alumnos.filter(a => a.activo !== false).length !== 1 ? "s" : ""}
+              {mostrarRetirados && retiradosCount > 0 && (
+                <span style={{ marginLeft: 8, color: "#ef4444" }}>· {retiradosCount} retirado{retiradosCount !== 1 ? "s" : ""}</span>
+              )}
+            </p>
           </div>
         </div>
-        <button className="btn-new" onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}>
-          {showForm ? "✕ Cancelar" : "+ Nuevo Alumno"}
-        </button>
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          {/* Toggle mostrar retirados */}
+          <label className="toggle-retirados-label">
+            <span className="toggle-retirados-text">
+              🚫 Ver retirados
+            </span>
+            <div
+              className={`toggle-switch ${mostrarRetirados ? "toggle-on" : ""}`}
+              onClick={() => setMostrarRetirados(v => !v)}
+            >
+              <div className="toggle-thumb" />
+            </div>
+          </label>
+          <button className="btn-new" onClick={() => { setShowForm(!showForm); if (showForm) resetForm(); }}>
+            {showForm ? "✕ Cancelar" : "+ Nuevo Alumno"}
+          </button>
+        </div>
       </div>
 
       {mensaje.text && <div className={`mensaje ${mensaje.type}`}>{mensaje.text}</div>}
@@ -328,35 +358,54 @@ const Alumnos = () => {
                   </td>
                 </tr>
               ) : (
-                paginated.map((a, i) => (
-                  <tr key={a.id}>
-                    <td style={{ color: "#94a3b8", fontWeight: 700, fontSize: 13 }}>
-                      {(page - 1) * perPage + i + 1}
-                    </td>
-                    <td><span className="dni-text">{a.dni}</span></td>
-                    <td>
-                      <div className="alumno-cell">
-                        <div className="avatar">{getInitials(a.nombres, a.apellidos)}</div>
-                        <div className="alumno-name">{a.nombres} {a.apellidos}</div>
-                      </div>
-                    </td>
-                    <td>
-                      {a.grado
-                        ? <span className="grado-badge">{a.grado}</span>
-                        : <span style={{ color: "#cbd5e1" }}>—</span>}
-                    </td>
-                    <td style={{ color: "#64748b" }}>{a.telefono || <span style={{ color: "#cbd5e1" }}>—</span>}</td>
-                    <td>
-                      <span className="dias-badge">{getDiasAsistenciaTexto(a.dias_asistencia)}</span>
-                    </td>
-                    <td>
-                      <div className="actions-cell">
-                        <button className="btn-edit" onClick={() => handleEdit(a)} title="Editar">✏️</button>
-                        <button className="btn-delete" onClick={() => handleDelete(a.id)} title="Eliminar">🗑️</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                paginated.map((a, i) => {
+                  const esInactivo = a.activo === false;
+                  return (
+                    <tr key={a.id} className={esInactivo ? "row-retirado" : ""}>
+                      <td style={{ color: "#94a3b8", fontWeight: 700, fontSize: 13 }}>
+                        {(page - 1) * perPage + i + 1}
+                      </td>
+                      <td><span className="dni-text">{a.dni}</span></td>
+                      <td>
+                        <div className="alumno-cell">
+                          <div className={`avatar ${esInactivo ? "avatar-inactivo" : ""}`}>
+                            {getInitials(a.nombres, a.apellidos)}
+                          </div>
+                          <div>
+                            <div className="alumno-name">{a.nombres} {a.apellidos}</div>
+                            {esInactivo && (
+                              <span className="badge-retirado">Retirado</span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        {a.grado
+                          ? <span className="grado-badge">{a.grado}</span>
+                          : <span style={{ color: "#cbd5e1" }}>—</span>}
+                      </td>
+                      <td style={{ color: "#64748b" }}>{a.telefono || <span style={{ color: "#cbd5e1" }}>—</span>}</td>
+                      <td>
+                        <span className="dias-badge">{getDiasAsistenciaTexto(a.dias_asistencia)}</span>
+                      </td>
+                      <td>
+                        <div className="actions-cell">
+                          {!esInactivo && (
+                            <button className="btn-edit" onClick={() => handleEdit(a)} title="Editar">✏️</button>
+                          )}
+                          <button
+                            className={esInactivo ? "btn-habilitar" : "btn-retirar"}
+                            onClick={() => handleToggleActivo(a)}
+                            title={esInactivo ? "Habilitar alumno" : "Marcar como retirado"}
+                          >
+                            {esInactivo ? "✅" : "🚫"}
+                          </button>
+                          <button className="btn-delete" onClick={() => handleDelete(a.id)} title="Eliminar permanentemente">🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

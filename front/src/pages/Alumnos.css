@@ -96,6 +96,136 @@
   box-shadow: 0 8px 24px rgba(79, 70, 229, 0.5);
 }
 
+/* ===== TOGGLE VER RETIRADOS ===== */
+.toggle-retirados-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+
+.toggle-retirados-label:hover {
+  border-color: #ef4444;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.12);
+}
+
+.toggle-retirados-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: #e2e8f0;
+  border-radius: 11px;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.toggle-on {
+  background: #ef4444;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.toggle-switch.toggle-on .toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ===== FILAS RETIRADAS ===== */
+.row-retirado {
+  opacity: 0.6;
+  background: #fafafa !important;
+}
+
+.row-retirado:hover {
+  opacity: 0.8;
+  background: #f5f5f5 !important;
+}
+
+.row-retirado td {
+  color: var(--text-muted) !important;
+}
+
+/* ===== BADGE RETIRADO ===== */
+.badge-retirado {
+  display: inline-block;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* ===== AVATAR INACTIVO ===== */
+.avatar-inactivo {
+  background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%) !important;
+  box-shadow: none !important;
+}
+
+/* ===== BOTONES RETIRAR / HABILITAR ===== */
+.btn-retirar {
+  border: none;
+  padding: 7px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.18s;
+  font-family: var(--font);
+  font-weight: 700;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.btn-retirar:hover {
+  background: #ef4444;
+  color: white;
+  transform: scale(1.08);
+}
+
+.btn-habilitar {
+  border: none;
+  padding: 7px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.18s;
+  font-family: var(--font);
+  font-weight: 700;
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.btn-habilitar:hover {
+  background: var(--success);
+  color: white;
+  transform: scale(1.08);
+}
+
 /* ===== MENSAJE ===== */
 .mensaje {
   padding: 14px 18px;
@@ -551,4 +681,5 @@ td {
   .table-wrapper { overflow-x: scroll; }
   table { min-width: 560px; }
   .pagination-bar { justify-content: center; }
+  .toggle-retirados-label { width: 100%; justify-content: space-between; }
 }

@@ -15,6 +15,11 @@ export const updateAlumno = (id, data) => {
     return api.put(`/alumnos/${id}`, data);
 };
 
+// Habilitar / Deshabilitar alumno (retirado)
+export const toggleAlumnoActivo = (id) => {
+    return api.patch(`/alumnos/${id}/toggle-activo`);
+};
+
 // Eliminar alumno
 export const deleteAlumno = (id) => {
     return api.delete(`/alumnos/${id}`);

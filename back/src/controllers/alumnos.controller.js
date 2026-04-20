@@ -5,10 +5,15 @@ const pool = require("../db/connection");
  */
 const listar = async (req, res) => {
     try {
-        const { buscar, grado } = req.query;
+        const { buscar, grado, incluir_inactivos } = req.query;
         let query = "SELECT * FROM alumnos WHERE 1=1";
         const params = [];
         let paramCount = 1;
+
+        // Por defecto solo muestra activos, a menos que se pida incluir inactivos
+        if (!incluir_inactivos || incluir_inactivos === "false") {
+            query += ` AND activo = true`;
+        }
 
         if (buscar) {
             query += ` AND (
@@ -66,8 +71,8 @@ const crear = async (req, res) => {
             return res.status(409).json({ error: "Ya existe un alumno con ese DNI" });
         }
         const result = await pool.query(
-            `INSERT INTO alumnos (dni, nombres, apellidos, telefono, grado, dias_asistencia)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            `INSERT INTO alumnos (dni, nombres, apellidos, telefono, grado, dias_asistencia, activo)
+             VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING *`,
             [dni, nombres, apellidos, telefono, grado, dias_asistencia || []]
         );
         res.status(201).json({ message: "Alumno creado exitosamente", alumno: result.rows[0] });
@@ -129,6 +134,31 @@ const eliminar = async (req, res) => {
 };
 
 /**
+ * HABILITAR / DESHABILITAR ALUMNO (RETIRADO)
+ */
+const toggleActivo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const alumnoResult = await pool.query("SELECT activo FROM alumnos WHERE id = $1", [id]);
+        if (alumnoResult.rows.length === 0) {
+            return res.status(404).json({ error: "Alumno no encontrado" });
+        }
+        const nuevoEstado = !alumnoResult.rows[0].activo;
+        const result = await pool.query(
+            "UPDATE alumnos SET activo = $1 WHERE id = $2 RETURNING *",
+            [nuevoEstado, id]
+        );
+        res.json({
+            message: nuevoEstado ? "Alumno habilitado correctamente" : "Alumno marcado como retirado",
+            alumno: result.rows[0],
+        });
+    } catch (error) {
+        console.error("Error al cambiar estado del alumno:", error);
+        res.status(500).json({ error: "Error al cambiar estado del alumno" });
+    }
+};
+
+/**
  * OBTENER MATRÍCULAS DE UN ALUMNO
  */
 const obtenerMatriculas = async (req, res) => {
@@ -175,6 +205,7 @@ module.exports = {
     crear,
     actualizar,
     eliminar,
+    toggleActivo,
     obtenerMatriculas,
     obtenerApoderados,
 };

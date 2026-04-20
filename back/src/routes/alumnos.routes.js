@@ -20,6 +20,9 @@ router.post("/", alumnosController.crear);
 // Actualizar alumno
 router.put("/:id", alumnosController.actualizar);
 
+// Habilitar / Deshabilitar alumno (retirado)
+router.patch("/:id/toggle-activo", alumnosController.toggleActivo);
+
 // Eliminar alumno
 router.delete("/:id", alumnosController.eliminar);
 
