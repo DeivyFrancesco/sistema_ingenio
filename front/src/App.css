@@ -103,3 +103,12 @@ body {
   margin: 8px 0;
   border-radius: 1px;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PRINT — ocultar sidebar y resetear layout
+══════════════════════════════════════════════════════════════ */
+@media print {
+  .sidebar        { display: none !important; }
+  .app-layout     { display: block !important; }
+  .content        { padding: 0 !important; overflow: visible !important; }
+}
