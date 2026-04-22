@@ -14,13 +14,12 @@ import Pagos             from "./pages/Pagos";
 import Matriculas        from "./pages/Matriculas";
 import Mensualidades     from "./pages/Mensualidades";
 import Usuarios          from "./pages/Usuarios";
+import Login             from "./pages/Login";
 import Register          from "./pages/Register";
 import Asistencias       from "./pages/Asistencias";
 import ReporteAsistencia from "./pages/ReporteAsistencia";
+import Reportes          from "./pages/Reportes";
 import Prospectos        from "./pages/Prospectos";
-
-/* 🆕 LANDING PAGE — reemplaza a Login como página principal */
-import ZtrilceAcademy    from "./pages/ZtrilceAcademy";
 
 import "./App.css";
 
@@ -39,16 +38,18 @@ function App() {
   const [isAuth, setIsAuth] = useState(!!localStorage.getItem("token"));
   const rol = getRol();
 
+  // 👇 AGREGADO: home según rol
   const home = rol === "visitante" ? "/reporte-asistencia" : "/alumnos";
 
   return (
     <div className="app-layout">
 
-      {/* SIDEBAR — solo visible cuando está autenticado */}
+      {/* SIDEBAR */}
       {isAuth && (
         <aside className="sidebar">
           <h2 className="logo">🎓 Ingenio</h2>
 
+          {/* Badge de rol */}
           {rol && (
             <p className="rol-badge">
               {rol === "admin"      ? "👑 Administrador"
@@ -58,6 +59,8 @@ function App() {
           )}
 
           <nav className="menu">
+
+            {/* 👇 AGREGADO: visitante solo ve reporte */}
             {rol === "visitante" ? (
               <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
             ) : (
@@ -66,8 +69,10 @@ function App() {
                 <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
                 <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
                 <NavLink to="/matriculas" className="menu-link">📝 Matrículas</NavLink>
+                <NavLink to="/reportes"   className="menu-link">📊 Reportes</NavLink>
                 <NavLink to="/prospectos" className="menu-link">🌟 Prospectos</NavLink>
 
+                {/* 🔒 SOLO ADMIN */}
                 {rol === "admin" && (
                   <>
                     <div className="menu-divider" />
@@ -97,39 +102,20 @@ function App() {
       {/* CONTENIDO */}
       <main className="content">
         <Routes>
-          {/* ── RUTAS PÚBLICAS ── */}
+          {/* PÚBLICAS */}
+          <Route path="/login"    element={isAuth ? <Navigate to={home} /> : <Login setIsAuth={setIsAuth} />} />
+          <Route path="/register" element={isAuth ? <Navigate to={home} /> : <Register />} />
 
-          {/*
-           * "/" → Landing page con modal de login integrado cuando NO está autenticado.
-           *       Si ya está autenticado, redirige al home según rol.
-           */}
-          <Route
-            path="/"
-            element={
-              isAuth
-                ? <Navigate to={home} />
-                : <ZtrilceAcademy setIsAuth={setIsAuth} />
-            }
-          />
-
-          {/*
-           * "/login" → Ya no es una página independiente.
-           *            Redirige a "/" para que el usuario use el modal de la landing.
-           *            (Mantiene compatibilidad con links guardados o bookmarks)
-           */}
-          <Route path="/login" element={<Navigate to="/" replace />} />
-
-          {/* Registro — sigue siendo página propia */}
-          <Route
-            path="/register"
-            element={isAuth ? <Navigate to={home} /> : <Register />}
-          />
-
-          {/* ── RUTAS PRIVADAS ── */}
+          {/* PRIVADAS */}
           {isAuth ? (
             <>
-              <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
+              <Route path="/" element={<Navigate to={home} />} />
 
+              {/* 👇 AGREGADO: ruta reporte accesible para todos los roles */}
+              <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
+              <Route path="/reportes" element={<Reportes />} />
+
+              {/* Solo no-visitantes ven el resto */}
               {rol !== "visitante" && (
                 <>
                   <Route path="/alumnos"    element={<Alumnos />} />
@@ -138,26 +124,26 @@ function App() {
                   <Route path="/matriculas" element={<Matriculas />} />
                   <Route path="/prospectos" element={<Prospectos />} />
 
+                  {/* 🔒 SOLO ADMIN */}
                   {rol === "admin" && (
                     <>
-                      <Route path="/asistencias"   element={<Asistencias />} />
-                      <Route path="/mensualidades" element={<Mensualidades />} />
-                      <Route path="/pagos"         element={<Pagos />} />
-                      <Route path="/usuarios"      element={<Usuarios />} />
+                      <Route path="/asistencias"        element={<Asistencias />} />
+                      <Route path="/mensualidades"      element={<Mensualidades />} />
+                      <Route path="/pagos"              element={<Pagos />} />
+                      <Route path="/usuarios"           element={<Usuarios />} />
                     </>
                   )}
                 </>
               )}
 
-              {/* Ruta legacy */}
+              {/* Ruta antigua por si alguien tiene guardada la URL */}
               <Route path="/reporte-alumno" element={<Navigate to="/reporte-asistencia" />} />
 
-              {/* Cualquier ruta inválida → home del rol */}
+              {/* 👇 AGREGADO: cualquier ruta inválida → home del rol */}
               <Route path="*" element={<Navigate to={home} />} />
             </>
           ) : (
-            /* No autenticado + ruta desconocida → landing */
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/login" />} />
           )}
         </Routes>
       </main>
