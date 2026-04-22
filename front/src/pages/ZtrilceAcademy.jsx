@@ -221,9 +221,58 @@ const css = `
 .zt-div::before,.zt-div::after{content:'';flex:1;height:1px;background:var(--border);}
 .zt-mreg{text-align:center;font-size:.82rem;color:var(--muted);}
 .zt-mreg a{color:var(--cyan);font-weight:800;text-decoration:none;}
+/* HAMBURGER */
+.zt-hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;cursor:pointer;background:none;border:none;padding:6px;border-radius:8px;transition:background .2s;}
+.zt-hamburger:hover{background:rgba(255,255,255,.07);}
+.zt-hamburger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:all .3s;}
+.zt-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.zt-hamburger.open span:nth-child(2){opacity:0;}
+.zt-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+/* MOBILE MENU */
+.zt-mobile-menu{display:none;position:fixed;top:70px;left:0;right:0;background:rgba(6,16,31,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:199;padding:16px 6% 20px;flex-direction:column;gap:4px;animation:zt-fi .2s ease;}
+.zt-mobile-menu.open{display:flex;}
+.zt-mobile-menu a{color:var(--muted);font-size:.9rem;font-weight:600;text-decoration:none;letter-spacing:.03em;text-transform:uppercase;padding:12px 4px;border-bottom:1px solid var(--border);transition:color .2s;}
+.zt-mobile-menu a:last-of-type{border-bottom:none;}
+.zt-mobile-menu a:hover{color:var(--cyan);}
+.zt-mobile-login-btn{margin-top:10px;width:100%;padding:12px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--blue),var(--blue-lt));color:#fff;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 4px 16px rgba(21,101,192,.4);transition:opacity .2s;}
+.zt-mobile-login-btn:hover{opacity:.88;}
 /* RESPONSIVE */
-@media(max-width:900px){.zt-hero-inner,.zt-why-grid,.zt-contact-grid{grid-template-columns:1fr;}.zt-visual{display:none;}.zt-nav-links{display:none;}}
-@media(max-width:600px){.zt-ctas{flex-direction:column;}.zt-stats{gap:20px;}.zt-lv-grid{grid-template-columns:1fr;}.zt-cgrid{grid-template-columns:1fr;}.zt-modal{padding:32px 22px;}}
+@media(max-width:900px){
+  .zt-nav-links{display:none;}
+  .zt-btn-login{display:none;}
+  .zt-hamburger{display:flex;}
+  .zt-hero-inner{grid-template-columns:1fr;gap:36px;}
+  .zt-visual{display:flex;justify-content:center;}
+  .zt-card{width:100%;max-width:380px;}
+  .zt-why-grid{grid-template-columns:1fr;gap:28px;}
+  .zt-contact-grid{grid-template-columns:1fr;gap:28px;}
+  .zt-hero{padding:100px 5% 50px;}
+  .zt-section{padding:70px 5%;}
+}
+@media(max-width:600px){
+  .zt-ctas{flex-direction:column;}
+  .zt-ctas .zt-btn-wa,.zt-ctas .zt-btn-outline{width:100%;justify-content:center;}
+  .zt-stats{gap:16px;flex-wrap:wrap;}
+  .zt-lv-grid{grid-template-columns:1fr;}
+  .zt-cgrid{grid-template-columns:1fr;}
+  .zt-modal{padding:28px 18px;}
+  .zt-section{padding:56px 5%;}
+  .zt-hero{padding:88px 5% 40px;}
+  .zt-band{flex-direction:column;text-align:center;gap:10px;padding:18px 5%;}
+  .zt-band-btn{width:100%;text-align:center;}
+  .zt-testi-grid{grid-template-columns:1fr;}
+  .zt-srv-grid{grid-template-columns:1fr 1fr;}
+  .zt-footer-inner{flex-direction:column;align-items:flex-start;gap:14px;}
+  .zt-flinks{flex-wrap:wrap;gap:14px;}
+  .zt-card{max-width:100%;}
+  .zt-badge{top:-14px;right:10px;width:90px;height:90px;}
+  .zt-badge-pct{font-size:1.6rem;}
+}
+@media(max-width:420px){
+  .zt-srv-grid{grid-template-columns:1fr;}
+  .zt-stats{flex-direction:column;gap:12px;}
+  .zt-stitle{font-size:2rem;}
+}
 `;
 
 /* ══ DATOS ══ */
@@ -373,29 +422,48 @@ function LoginModal({ onClose, setIsAuth }) {
   );
 }
 
-/* ══ NAVBAR ══ */
+/* == NAVBAR == */
 function Navbar({ onLogin }) {
   const [sc, setSc] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(()=>{
     const fn = ()=>setSc(window.scrollY>20);
     window.addEventListener("scroll",fn);
     return ()=>window.removeEventListener("scroll",fn);
   },[]);
+  const closeMenu = () => setMenuOpen(false);
   return (
-    <nav className={`zt-nav${sc?" sc":""}`}>
-      <a href="#inicio" className="zt-brand">
-        <div className="zt-brand-icon">🦉</div>
-        <span className="zt-brand-name">ZTRILCE</span>
-      </a>
-      <ul className="zt-nav-links">
-        <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#niveles">Niveles</a></li>
-        <li><a href="#servicios">Servicios</a></li>
-        <li><a href="#porqué">Nosotros</a></li>
-        <li><a href="#contacto">Contacto</a></li>
-      </ul>
-      <button className="zt-btn-login" onClick={onLogin}>Iniciar sesión</button>
-    </nav>
+    <>
+      <nav className={`zt-nav${sc?" sc":""}`}>
+        <a href="#inicio" className="zt-brand">
+          <div className="zt-brand-icon">&#x1F989;</div>
+          <span className="zt-brand-name">ZTRILCE</span>
+        </a>
+        <ul className="zt-nav-links">
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#niveles">Niveles</a></li>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#porqu&#xE9;">Nosotros</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+        <button className="zt-btn-login" onClick={onLogin}>Iniciar sesi&#xF3;n</button>
+        <button className={`zt-hamburger${menuOpen?" open":""}`}
+                onClick={()=>setMenuOpen(p=>!p)} aria-label="Men&#xFA;">
+          <span/><span/><span/>
+        </button>
+      </nav>
+      <div className={`zt-mobile-menu${menuOpen?" open":""}`}>
+        <a href="#inicio"    onClick={closeMenu}>Inicio</a>
+        <a href="#niveles"   onClick={closeMenu}>Niveles</a>
+        <a href="#servicios" onClick={closeMenu}>Servicios</a>
+        <a href="#porqu&#xE9;"    onClick={closeMenu}>Nosotros</a>
+        <a href="#contacto"  onClick={closeMenu}>Contacto</a>
+        <button className="zt-mobile-login-btn"
+                onClick={()=>{ closeMenu(); onLogin(); }}>
+          Iniciar sesi&#xF3;n
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -566,7 +634,7 @@ function ZtrilceAcademy({ setIsAuth }) {
             </div>
             <div className="zt-stats">
               <div className="zt-stat"><div className="zt-stat-n">11+</div><div className="zt-stat-l">Años de experiencia</div></div>
-              <div className="zt-stat"><div className="zt-stat-n">S/160</div><div className="zt-stat-l">Al mes</div></div>
+              <div className="zt-stat"><div className="zt-stat-n" style={{fontSize:"1.1rem",lineHeight:"1.4"}}>PRECIOS<br/>ACCESIBLES</div><div className="zt-stat-l">Para todos</div></div>
               <div className="zt-stat"><div className="zt-stat-n">98%</div><div className="zt-stat-l">Aprobación</div></div>
             </div>
           </div>
@@ -585,11 +653,15 @@ function ZtrilceAcademy({ setIsAuth }) {
               </div>
               <div className="zt-sched">
                 <div className="zt-days">LUN · MIÉ · VIE</div>
-                <div className="zt-time">09:00 am — 11:00 am</div>
+                <div className="zt-time">☀️ Mañana: 9:00 – 11:00 am</div>
+                <div className="zt-time" style={{marginTop:4}}>🌇 Tarde: 3:00–5:00 pm · 4:00–6:00 pm</div>
               </div>
               <div className="zt-price-row">
-                <div className="zt-price">S/ 160</div>
-                <div className="zt-price-lbl">mensual<br/>por alumno</div>
+                <div style={{fontSize:"1.4rem"}}>💰</div>
+                <div>
+                  <div className="zt-price" style={{fontSize:"1.15rem",letterSpacing:".01em",lineHeight:1.2}}>PRECIOS ACCESIBLES</div>
+                  <div className="zt-price-lbl">consulta disponibilidad</div>
+                </div>
               </div>
               <div className="zt-card-srvs">
                 {["Apoyo con tus tareas","Reforzamiento y nivelación","Preparación para exámenes"].map((s,i)=>(
@@ -716,8 +788,8 @@ function ZtrilceAcademy({ setIsAuth }) {
               {[
                 {ic:"📍",label:"Dirección",           val:"Jr. Revilla Pérez 325\nA media cuadra del Estadio Municipal"},
                 {ic:"📞",label:"Celular / WhatsApp",   val:"946 323 273"},
-                {ic:"🕐",label:"Horario de clases",    val:"Lunes · Miércoles · Viernes\n09:00 am – 11:00 am"},
-                {ic:"💰",label:"Costo mensual",        val:"S/ 160 por alumno"},
+                {ic:"🕐",label:"Horario de clases",    val:"Lunes · Miércoles · Viernes\n☀️ Mañana: 9:00 – 11:00 am\n🌇 Tarde: 3:00–5:00 pm  ·  4:00–6:00 pm"},
+                {ic:"💰",label:"Costo mensual",        val:"Precios accesibles\nConsúltanos por WhatsApp"},
                 {ic:"👨‍🏫",label:"Docente titular",    val:"Ing. Deivy Saldaña"},
               ].map((r,i)=>(
                 <div key={i} className="zt-crow">
