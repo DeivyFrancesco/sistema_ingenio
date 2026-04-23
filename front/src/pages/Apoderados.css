@@ -107,14 +107,14 @@
   margin-bottom: 18px;
   font-weight: 700;
   font-size: 14px;
-  animation: slideDown 0.3s ease-out;
+  animation: ap-slideDown 0.3s ease-out;
 }
 
 .mensaje.success { background: #d1fae5; color: #065f46; border-left: 4px solid var(--success); }
 .mensaje.error   { background: #fee2e2; color: #7f1d1d; border-left: 4px solid var(--danger);  }
 .mensaje.info    { background: #fce7f3; color: #9d174d; border-left: 4px solid var(--primary); }
 
-@keyframes slideDown {
+@keyframes ap-slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0);      }
 }
@@ -129,7 +129,7 @@
   margin-bottom: 22px;
   box-shadow: var(--shadow-lg);
   border-top: 4px solid var(--primary);
-  animation: slideDown 0.25s ease-out;
+  animation: ap-slideDown 0.25s ease-out;
 }
 
 .form-card-title {
@@ -301,9 +301,13 @@
   border-color: var(--primary);
 }
 
-/* ══════════════════════════════════
+/* ══════════════════════════════════════════════════
    TABLE CARD
-══════════════════════════════════ */
+   IMPORTANTE: todos los selectores de <table>,
+   <thead>, <tbody>, <tr>, <td>, <th> van siempre
+   bajo .apoderados-container para no filtrar
+   estilos a otros componentes (Mensualidades, etc.)
+══════════════════════════════════════════════════ */
 .table-card {
   background: var(--card);
   border-radius: var(--radius);
@@ -335,27 +339,25 @@
   font-weight: 800;
 }
 
-/* ── Scroll horizontal solo en el área de tabla ── */
 .table-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── La tabla ocupa el ancho completo; columnas con tamaño fijo ── */
-table {
+/* — Tabla escopeada — */
+.apoderados-container .table-wrapper table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;      /* columnas con ancho definido, sin desborde */
+  table-layout: fixed;
 }
 
-/* Ancho de cada columna */
-table colgroup col:nth-child(1) { width: 50px;  }   /* # */
-table colgroup col:nth-child(2) { width: 22%;   }   /* Apoderado */
-table colgroup col:nth-child(3) { width: 150px; }   /* Teléfono */
-table colgroup col:nth-child(4) { width: auto;  }   /* Alumnos (toma el resto) */
-table colgroup col:nth-child(5) { width: 110px; }   /* Acciones */
+.apoderados-container .table-wrapper table colgroup col:nth-child(1) { width: 50px;  }
+.apoderados-container .table-wrapper table colgroup col:nth-child(2) { width: 22%;   }
+.apoderados-container .table-wrapper table colgroup col:nth-child(3) { width: 150px; }
+.apoderados-container .table-wrapper table colgroup col:nth-child(4) { width: auto;  }
+.apoderados-container .table-wrapper table colgroup col:nth-child(5) { width: 110px; }
 
-thead th {
+.apoderados-container .table-wrapper thead th {
   padding: 11px 14px;
   text-align: left;
   font-size: 11px;
@@ -370,39 +372,41 @@ thead th {
   text-overflow: ellipsis;
 }
 
-thead th.sortable {
+.apoderados-container .table-wrapper thead th.sortable {
   cursor: pointer;
   user-select: none;
 }
 
-thead th.sortable:hover {
+.apoderados-container .table-wrapper thead th.sortable:hover {
   color: var(--primary);
 }
 
-tbody tr {
+.apoderados-container .table-wrapper tbody tr {
   border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
-tbody tr:last-child {
+.apoderados-container .table-wrapper tbody tr:last-child {
   border-bottom: none;
 }
 
-tbody tr:hover {
+.apoderados-container .table-wrapper tbody tr:hover {
   background: #fdf2f8;
 }
 
-td {
+.apoderados-container .table-wrapper td {
   padding: 13px 14px;
   font-size: 13.5px;
   color: var(--text);
   font-weight: 600;
-  vertical-align: top;        /* alineación arriba para celdas con listas */
-  word-break: break-word;     /* evita desborde en textos largos */
+  vertical-align: top;
+  word-break: break-word;
   overflow: hidden;
 }
 
-/* ── Celda del apoderado ── */
+/* ══════════════════════════════════
+   CELDAS DE CONTENIDO
+══════════════════════════════════ */
 .apoderado-cell {
   display: flex;
   align-items: center;
@@ -431,7 +435,6 @@ td {
   word-break: break-word;
 }
 
-/* ── Teléfono ── */
 .telefono-text {
   font-family: var(--mono);
   font-size: 12.5px;
@@ -442,7 +445,6 @@ td {
   display: inline-block;
 }
 
-/* ── Alumnos vinculados ── */
 .alumnos-list {
   display: flex;
   flex-direction: column;
@@ -475,14 +477,9 @@ td {
   flex-shrink: 0;
 }
 
-.btn-desvincular:hover {
-  transform: scale(1.2);
-}
+.btn-desvincular:hover { transform: scale(1.2); }
 
-.sin-alumnos {
-  color: #cbd5e1;
-  font-size: 13px;
-}
+.sin-alumnos { color: #cbd5e1; font-size: 13px; }
 
 .vincular-btn {
   background: none;
@@ -498,10 +495,7 @@ td {
   margin-top: 4px;
 }
 
-.vincular-btn:hover {
-  background: #fce7f3;
-  border-color: var(--primary);
-}
+.vincular-btn:hover { background: #fce7f3; border-color: var(--primary); }
 
 .vincular-dropdown {
   margin-top: 8px;
@@ -510,7 +504,7 @@ td {
   border-radius: 10px;
   padding: 10px;
   box-shadow: 0 4px 16px rgba(236, 72, 153, 0.12);
-  animation: slideDown 0.2s ease-out;
+  animation: ap-slideDown 0.2s ease-out;
 }
 
 .vincular-dropdown select {
@@ -525,9 +519,7 @@ td {
   margin-bottom: 8px;
 }
 
-.vincular-dropdown select:focus {
-  border-color: var(--primary);
-}
+.vincular-dropdown select:focus { border-color: var(--primary); }
 
 .btn-vincular-ok {
   width: 100%;
@@ -543,11 +535,8 @@ td {
   transition: all 0.2s;
 }
 
-.btn-vincular-ok:hover {
-  background: var(--primary-dark);
-}
+.btn-vincular-ok:hover { background: var(--primary-dark); }
 
-/* ── Acciones ── */
 .actions-cell {
   display: flex;
   gap: 6px;
@@ -566,29 +555,19 @@ td {
   font-weight: 700;
 }
 
-.btn-edit   { background: #fef3c7; color: #92400e; }
+.btn-edit         { background: #fef3c7; color: #92400e; }
 .btn-edit:hover   { background: var(--warning); color: white; transform: scale(1.08); }
-
-.btn-delete { background: #fee2e2; color: #7f1d1d; }
+.btn-delete       { background: #fee2e2; color: #7f1d1d; }
 .btn-delete:hover { background: var(--danger);  color: white; transform: scale(1.08); }
 
-/* ── Empty state ── */
 .empty-state {
   text-align: center;
   padding: 56px 20px;
   color: var(--text-muted);
 }
 
-.empty-state .empty-icon {
-  font-size: 44px;
-  margin-bottom: 12px;
-}
-
-.empty-state p {
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0;
-}
+.empty-state .empty-icon { font-size: 44px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; font-weight: 700; margin: 0; }
 
 /* ══════════════════════════════════
    PAGINACIÓN
@@ -661,15 +640,15 @@ td {
    RESPONSIVE
 ══════════════════════════════════ */
 @media (max-width: 900px) {
-  table { table-layout: auto; }   /* en móvil libera el layout fijo */
+  .apoderados-container .table-wrapper table { table-layout: auto; }
 }
 
 @media (max-width: 768px) {
-  .apoderados-container { padding: 16px; }
-  .ap-title { font-size: 20px; }
-  .ap-toolbar { flex-direction: column; align-items: stretch; }
-  .search-wrap { max-width: 100%; }
-  .table-wrapper { overflow-x: scroll; }
-  table { min-width: 580px; }
-  .pagination-bar { justify-content: center; }
+  .apoderados-container     { padding: 16px; }
+  .ap-title                 { font-size: 20px; }
+  .ap-toolbar               { flex-direction: column; align-items: stretch; }
+  .search-wrap              { max-width: 100%; }
+  .table-wrapper            { overflow-x: scroll; }
+  .apoderados-container .table-wrapper table { min-width: 580px; }
+  .pagination-bar           { justify-content: center; }
 }
