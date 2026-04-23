@@ -19,12 +19,12 @@ import Asistencias       from "./pages/Asistencias";
 import ReporteAsistencia from "./pages/ReporteAsistencia";
 import Prospectos        from "./pages/Prospectos";
 
-/* 🆕 LANDING PAGE — reemplaza a Login como página principal */
+/* LANDING PAGE */
 import ZtrilceAcademy    from "./pages/ZtrilceAcademy";
 
 import "./App.css";
 
-/* 🔹 Obtener rol del token */
+/* Obtener rol del token */
 const getRol = () => {
   try {
     const token = localStorage.getItem("token");
@@ -44,24 +44,38 @@ function App() {
   return (
     <div className="app-layout">
 
-      {/* SIDEBAR — solo visible cuando está autenticado */}
+      {/* SIDEBAR */}
       {isAuth && (
         <aside className="sidebar">
-          <h2 className="logo">🎓 Ingenio</h2>
 
-          {rol && (
-            <p className="rol-badge">
-              {rol === "admin"      ? "👑 Administrador"
-             : rol === "visitante" ? "👁️ Visitante"
-             : "👤 Usuario"}
-            </p>
-          )}
+          {/* Logo */}
+          <div className="sidebar-logo-area">
+            <div className="logo">
+              <div className="logo-icon">🎓</div>
+              <span className="logo-text">Ingenio</span>
+            </div>
+            <span className="logo-sub">Sistema de Gestión</span>
 
+            {rol && (
+              <div className="rol-badge" style={{ marginTop: 14 }}>
+                {rol === "admin"
+                  ? "👑 Administrador"
+                  : rol === "visitante"
+                  ? "👁️ Visitante"
+                  : "👤 Usuario"}
+              </div>
+            )}
+          </div>
+
+          {/* Nav */}
           <nav className="menu">
             {rol === "visitante" ? (
-              <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
+              <NavLink to="/reporte-asistencia" className="menu-link">
+                📊 Reporte Asistencia
+              </NavLink>
             ) : (
               <>
+                <span className="menu-section-label">Principal</span>
                 <NavLink to="/alumnos"    className="menu-link">👨‍🎓 Alumnos</NavLink>
                 <NavLink to="/apoderados" className="menu-link">👨‍👩‍👧 Apoderados</NavLink>
                 <NavLink to="/cursos"     className="menu-link">📘 Cursos</NavLink>
@@ -71,6 +85,7 @@ function App() {
                 {rol === "admin" && (
                   <>
                     <div className="menu-divider" />
+                    <span className="menu-section-label">Administración</span>
                     <NavLink to="/asistencias"        className="menu-link">📋 Asistencias</NavLink>
                     <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
                     <NavLink to="/mensualidades"      className="menu-link">📆 Mensualidades</NavLink>
@@ -82,27 +97,25 @@ function App() {
             )}
           </nav>
 
-          <button
-            className="logout-btn"
-            onClick={() => {
-              localStorage.removeItem("token");
-              setIsAuth(false);
-            }}
-          >
-            🚪 Cerrar sesión
-          </button>
+          {/* Footer / Logout */}
+          <div className="sidebar-footer">
+            <button
+              className="logout-btn"
+              onClick={() => {
+                localStorage.removeItem("token");
+                setIsAuth(false);
+              }}
+            >
+              🚪 Cerrar sesión
+            </button>
+          </div>
         </aside>
       )}
 
       {/* CONTENIDO */}
       <main className="content">
         <Routes>
-          {/* ── RUTAS PÚBLICAS ── */}
-
-          {/*
-           * "/" → Landing page con modal de login integrado cuando NO está autenticado.
-           *       Si ya está autenticado, redirige al home según rol.
-           */}
+          {/* RUTAS PÚBLICAS */}
           <Route
             path="/"
             element={
@@ -111,21 +124,13 @@ function App() {
                 : <ZtrilceAcademy setIsAuth={setIsAuth} />
             }
           />
-
-          {/*
-           * "/login" → Ya no es una página independiente.
-           *            Redirige a "/" para que el usuario use el modal de la landing.
-           *            (Mantiene compatibilidad con links guardados o bookmarks)
-           */}
           <Route path="/login" element={<Navigate to="/" replace />} />
-
-          {/* Registro — sigue siendo página propia */}
           <Route
             path="/register"
             element={isAuth ? <Navigate to={home} /> : <Register />}
           />
 
-          {/* ── RUTAS PRIVADAS ── */}
+          {/* RUTAS PRIVADAS */}
           {isAuth ? (
             <>
               <Route path="/reporte-asistencia" element={<ReporteAsistencia />} />
@@ -149,14 +154,10 @@ function App() {
                 </>
               )}
 
-              {/* Ruta legacy */}
               <Route path="/reporte-alumno" element={<Navigate to="/reporte-asistencia" />} />
-
-              {/* Cualquier ruta inválida → home del rol */}
               <Route path="*" element={<Navigate to={home} />} />
             </>
           ) : (
-            /* No autenticado + ruta desconocida → landing */
             <Route path="*" element={<Navigate to="/" />} />
           )}
         </Routes>

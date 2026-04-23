@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap');
 
-/* ===== ROOT VARS (same as Alumnos) ===== */
+/* ===== ROOT VARS ===== */
 :root {
   --primary: #4f46e5;
   --primary-light: #818cf8;
@@ -395,7 +395,7 @@
 
 .table-wrapper { overflow-x: auto; }
 
-table { width: 100%; border-collapse: collapse; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
 thead th {
   padding: 13px 16px;
@@ -408,10 +408,21 @@ thead th {
   background: #f8fafc;
   border-bottom: 2px solid var(--border);
   white-space: nowrap;
+  overflow: hidden;
 }
 
 thead th.sortable { cursor: pointer; user-select: none; }
 thead th.sortable:hover { color: var(--orange); }
+
+/* Column widths */
+thead th:nth-child(1) { width: 44px; }   /* # */
+thead th:nth-child(2) { width: 200px; }  /* Prospecto */
+thead th:nth-child(3) { width: 130px; }  /* Teléfono */
+thead th:nth-child(4) { width: 60px; }   /* Grado */
+thead th:nth-child(5) { width: 130px; }  /* Fecha */
+thead th:nth-child(6) { width: 120px; }  /* Estado */
+thead th:nth-child(7) { width: 180px; }  /* Notas */
+thead th:nth-child(8) { width: 90px; }   /* Acciones */
 
 tbody tr {
   border-bottom: 1px solid var(--border);
@@ -427,6 +438,7 @@ td {
   color: var(--text);
   font-weight: 600;
   vertical-align: middle;
+  overflow: hidden;
 }
 
 /* ===== AVATAR ===== */
@@ -434,6 +446,7 @@ td {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .avatar-pr {
@@ -451,9 +464,9 @@ td {
   box-shadow: 0 3px 8px rgba(249,115,22,0.3);
 }
 
-.prospecto-names { display: flex; flex-direction: column; gap: 1px; }
-.padre-name  { font-weight: 700; color: var(--text); font-size: 13px; }
-.hijo-name   { font-weight: 600; color: var(--text-muted); font-size: 12px; }
+.prospecto-names { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.padre-name  { font-weight: 700; color: var(--text); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hijo-name   { font-weight: 600; color: var(--text-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ===== FECHA BADGE ===== */
 .fecha-badge {
@@ -484,6 +497,7 @@ td {
   border: none;
   font-family: var(--font);
   transition: opacity 0.15s;
+  white-space: nowrap;
 }
 
 .estado-badge:hover { opacity: 0.8; }
@@ -502,11 +516,13 @@ td {
   font-weight: 800;
   background: #ede9fe;
   color: var(--primary-dark);
+  white-space: nowrap;
 }
 
-/* ===== NOTAS ===== */
+/* ===== NOTAS — FIX ===== */
 .nota-text {
-  max-width: 180px;
+  display: block;           /* ← KEY FIX: block para que max-width funcione */
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -586,6 +602,6 @@ td {
   .search-wrap { max-width: 100%; }
   .pr-stats { grid-template-columns: repeat(2, 1fr); }
   .table-wrapper { overflow-x: scroll; }
-  table { min-width: 640px; }
+  table { min-width: 700px; table-layout: auto; }
   .pagination-bar { justify-content: center; }
 }
