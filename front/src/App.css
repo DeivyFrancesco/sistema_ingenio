@@ -24,9 +24,12 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  position: sticky;          /* queda fijo en el viewport */
+  top: 0;
+  height: 100vh;             /* alto exacto del viewport */
+  overflow: hidden;          /* el scroll interno lo maneja .menu */
   box-shadow: 4px 0 24px rgba(55, 48, 163, 0.35);
+  flex-shrink: 0;
 }
 
 /* Decorative glow blob */
@@ -60,6 +63,7 @@ body {
   z-index: 1;
   padding: 28px 20px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;            /* nunca se comprime */
 }
 
 .logo {
@@ -118,16 +122,17 @@ body {
   justify-content: center;
 }
 
-/* ── NAV MENU ── */
+/* ── NAV MENU — crece y hace scroll si hay muchos ítems ── */
 .menu {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  flex: 1;
+  flex: 1;                   /* ocupa todo el espacio disponible */
+  min-height: 0;             /* necesario para que flex+overflow funcione */
   padding: 16px 12px;
-  overflow-y: auto;
+  overflow-y: auto;          /* scroll solo en el menú */
 }
 
 .menu::-webkit-scrollbar { width: 4px; }
@@ -191,12 +196,13 @@ body {
   border-radius: 1px;
 }
 
-/* ── LOGOUT ── */
+/* ── LOGOUT — siempre al fondo, nunca se mueve ── */
 .sidebar-footer {
   position: relative;
   z-index: 1;
   padding: 12px 14px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;            /* nunca se comprime */
 }
 
 .logout-btn {

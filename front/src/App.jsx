@@ -18,6 +18,7 @@ import Register          from "./pages/Register";
 import Asistencias       from "./pages/Asistencias";
 import ReporteAsistencia from "./pages/ReporteAsistencia";
 import Prospectos        from "./pages/Prospectos";
+import Reportes          from "./pages/Reportes";   // 🆕
 
 /* LANDING PAGE */
 import ZtrilceAcademy    from "./pages/ZtrilceAcademy";
@@ -90,6 +91,7 @@ function App() {
                     <NavLink to="/reporte-asistencia" className="menu-link">📊 Reporte Asistencia</NavLink>
                     <NavLink to="/mensualidades"      className="menu-link">📆 Mensualidades</NavLink>
                     <NavLink to="/pagos"              className="menu-link">💰 Pagos</NavLink>
+                    <NavLink to="/reportes"           className="menu-link">📈 Reportes</NavLink>
                     <NavLink to="/usuarios"           className="menu-link">👥 Usuarios</NavLink>
                   </>
                 )}
@@ -148,6 +150,7 @@ function App() {
                       <Route path="/asistencias"   element={<Asistencias />} />
                       <Route path="/mensualidades" element={<Mensualidades />} />
                       <Route path="/pagos"         element={<Pagos />} />
+                      <Route path="/reportes"      element={<Reportes />} />  {/* 🆕 */}
                       <Route path="/usuarios"      element={<Usuarios />} />
                     </>
                   )}
