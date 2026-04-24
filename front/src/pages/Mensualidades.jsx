@@ -612,6 +612,7 @@ export default function Mensualidades() {
 
   const [filtroEstado, setFiltroEstado] = useState("TODAS");
   const [filtroMes, setFiltroMes] = useState("");
+  const [filtroAlumno, setFiltroAlumno] = useState("");
 
   const [form, setForm] = useState({
     matricula_id: "",
@@ -675,6 +676,11 @@ export default function Mensualidades() {
     if (filtroMes) {
       const mes = new Date(m.fecha_inicio).getMonth() + 1;
       if (mes !== parseInt(filtroMes)) return false;
+    }
+    if (filtroAlumno) {
+      const busqueda = filtroAlumno.toLowerCase();
+      const nombreCompleto = `${m.nombres} ${m.apellidos}`.toLowerCase();
+      if (!nombreCompleto.includes(busqueda)) return false;
     }
     return true;
   });
@@ -788,16 +794,32 @@ export default function Mensualidades() {
           ))}
         </div>
 
-        <select
-          className="filtro-input"
-          value={filtroMes}
-          onChange={(e) => setFiltroMes(e.target.value)}
-        >
-          <option value="">Todos los meses</option>
-          {["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((mes, i) => (
-            <option key={i+1} value={i+1}>{mes}</option>
-          ))}
-        </select>
+        <div className="filtro-selects">
+          <div className="filtro-buscar-wrap">
+            <span className="filtro-buscar-icon">🔍</span>
+            <input
+              type="text"
+              className="filtro-buscar"
+              placeholder="Buscar alumno…"
+              value={filtroAlumno}
+              onChange={(e) => setFiltroAlumno(e.target.value)}
+            />
+            {filtroAlumno && (
+              <button className="filtro-buscar-clear" onClick={() => setFiltroAlumno("")}>✕</button>
+            )}
+          </div>
+
+          <select
+            className="filtro-input"
+            value={filtroMes}
+            onChange={(e) => setFiltroMes(e.target.value)}
+          >
+            <option value="">Todos los meses</option>
+            {["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"].map((mes, i) => (
+              <option key={i+1} value={i+1}>{mes}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* TABLA */}

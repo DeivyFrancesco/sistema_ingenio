@@ -150,6 +150,35 @@
 /* ── FILTROS ── */
 .mens-page .filtro-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .mens-page .filtro-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.mens-page .filtro-selects { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.mens-page .filtro-buscar-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.mens-page .filtro-buscar-icon {
+  position: absolute; left: 10px; font-size: 13px; pointer-events: none; opacity: .55;
+}
+.mens-page .filtro-buscar {
+  padding: 8px 32px 8px 30px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: inherit;
+  background: #fff;
+  color: #374151;
+  width: 200px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.mens-page .filtro-buscar:focus {
+  outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(67,56,202,.10);
+}
+.mens-page .filtro-buscar::placeholder { color: #b0b7c3; }
+.mens-page .filtro-buscar-clear {
+  position: absolute; right: 8px;
+  background: none; border: none; cursor: pointer;
+  font-size: 11px; color: #9ca3af; padding: 2px 4px; border-radius: 4px;
+  line-height: 1;
+}
+.mens-page .filtro-buscar-clear:hover { background: #f3f4f6; color: #374151; }
 
 .mens-page .filtro-tab {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
@@ -425,6 +454,9 @@
   .mens-page .cards       { display: flex; }
   .mens-page .filtro-bar  { flex-direction: column; align-items: flex-start; }
   .mens-page .filtro-tabs { width: 100%; }
+  .mens-page .filtro-selects { width: 100%; }
+  .mens-page .filtro-buscar { width: 100%; }
+  .mens-page .filtro-buscar-wrap { width: 100%; }
   .mens-page .filtro-input{ width: 100%; }
 }
 @media (max-width: 480px) {
