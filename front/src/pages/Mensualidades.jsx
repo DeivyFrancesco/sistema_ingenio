@@ -123,136 +123,260 @@ const imprimirMensualidad = (m, estado) => {
     PENDIENTE: "#d97706",
   }[estado] || "#374151";
 
+  const estadoBg = {
+    PAGADO:    "#f0fdf4",
+    VENCIDO:   "#fef2f2",
+    PARCIAL:   "#fff7ed",
+    POR_VENCER:"#fefce8",
+    PENDIENTE: "#fffbeb",
+  }[estado] || "#f9fafb";
+
   const fechaEmision = new Date().toLocaleDateString("es-PE", {
     day: "2-digit", month: "long", year: "numeric",
   });
+
+  const horaEmision = new Date().toLocaleTimeString("es-PE", {
+    hour: "2-digit", minute: "2-digit",
+  });
+
+  // Número de comprobante: N-YYYYMM-ID
+  const nroComprobante = `N-${(m.periodo || "").replace("-","")}-${String(m.id).padStart(4,"0")}`;
 
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <title>Mensualidad — ${m.nombres} ${m.apellidos}</title>
+  <title>Comprobante ${nroComprobante} — ${m.nombres} ${m.apellidos}</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      background: #f3f4f6;
+      background: #eef0f5;
       display: flex; justify-content: center; align-items: flex-start;
-      min-height: 100vh; padding: 32px 16px;
+      min-height: 100vh; padding: 36px 16px;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
     .voucher {
       background: #fff;
-      width: 560px;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.12);
+      width: 580px;
+      border-radius: 18px;
+      box-shadow: 0 12px 48px rgba(0,0,0,.14);
       overflow: hidden;
     }
 
-    /* CABECERA */
+    /* ── CABECERA ACADEMIA ── */
     .voucher-header {
-      background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
-      padding: 28px 32px 24px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #1565c0 60%, #0d47a1 100%);
+      padding: 0;
       color: #fff;
+      position: relative;
+      overflow: hidden;
     }
-    .voucher-logo {
-      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; opacity: .7; margin-bottom: 10px;
+    .header-deco {
+      position: absolute; top: -30px; right: -30px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,.05);
     }
-    .voucher-titulo {
-      font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1;
+    .header-deco2 {
+      position: absolute; bottom: -50px; right: 60px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: rgba(255,255,255,.04);
     }
-    .voucher-sub {
-      font-size: 13px; opacity: .75; margin-top: 4px;
+    .header-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 28px 32px 20px; position: relative; z-index: 1;
     }
-    .voucher-emisión {
-      font-size: 11px; opacity: .6; margin-top: 14px; font-weight: 600;
-      letter-spacing: 0.3px;
+    .academia-info {}
+    .academia-brand {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .academia-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .academia-nombre {
+      font-size: 22px; font-weight: 900; letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .academia-detalle {
+      font-size: 11px; opacity: .7; line-height: 1.7; font-weight: 500;
+    }
+    .comprobante-tag {
+      text-align: right; flex-shrink: 0;
+    }
+    .comp-etiqueta {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: .6; margin-bottom: 4px;
+    }
+    .comp-numero {
+      font-size: 15px; font-weight: 800; letter-spacing: .5px;
+      background: rgba(255,255,255,.15); padding: 5px 12px;
+      border-radius: 8px; display: inline-block;
+    }
+    .comp-fecha {
+      font-size: 10px; opacity: .55; margin-top: 5px; font-weight: 500;
     }
 
-    /* BADGE ESTADO */
-    .badge-wrap { padding: 16px 32px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .header-divider {
+      border: none; border-top: 1px solid rgba(255,255,255,.12);
+      margin: 0 32px;
+    }
+    .header-alumno {
+      padding: 18px 32px 26px; position: relative; z-index: 1;
+    }
+    .alumno-etiqueta {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; opacity: .55; margin-bottom: 6px;
+    }
+    .alumno-nombre {
+      font-size: 26px; font-weight: 900; letter-spacing: -.5px; line-height: 1.1;
+    }
+    .alumno-curso {
+      font-size: 13px; opacity: .7; margin-top: 5px; font-weight: 500;
+    }
+
+    /* ── BADGE ESTADO ── */
+    .badge-wrap {
+      padding: 14px 32px;
+      background: ${estadoBg};
+      border-bottom: 1px solid #e5e7eb;
+      display: flex; align-items: center; justify-content: space-between;
+    }
     .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 16px; border-radius: 99px;
-      font-size: 13px; font-weight: 700;
-      background: color-mix(in srgb, ${estadoColor} 12%, #fff);
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 18px; border-radius: 99px;
+      font-size: 13px; font-weight: 800;
+      background: #fff;
       color: ${estadoColor};
-      border: 1.5px solid color-mix(in srgb, ${estadoColor} 35%, #fff);
+      border: 1.5px solid ${estadoColor}40;
+      box-shadow: 0 2px 8px ${estadoColor}20;
+    }
+    .badge-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: ${estadoColor};
+      flex-shrink: 0;
+    }
+    .badge-emision {
+      font-size: 11px; color: #9ca3af; font-weight: 500;
     }
 
-    /* SECCIONES */
-    .seccion { padding: 22px 32px; border-bottom: 1px solid #e5e7eb; }
+    /* ── SECCIONES ── */
+    .seccion { padding: 22px 32px; border-bottom: 1px solid #f1f1f3; }
     .seccion:last-child { border-bottom: none; }
     .seccion-titulo {
-      font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
-      text-transform: uppercase; color: #9ca3af; margin-bottom: 14px;
+      font-size: 9.5px; font-weight: 800; letter-spacing: 1.4px;
+      text-transform: uppercase; color: #b0b7c3; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .seccion-titulo::after {
+      content: ''; flex: 1; height: 1px; background: #f1f1f3;
     }
 
-    /* GRID DE DATOS */
-    .datos-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    }
+    /* ── DATOS GRID ── */
+    .datos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .dato { display: flex; flex-direction: column; gap: 3px; }
     .dato.full { grid-column: 1 / -1; }
     .dato-label {
-      font-size: 11px; font-weight: 700; color: #9ca3af;
-      text-transform: uppercase; letter-spacing: 0.5px;
+      font-size: 10px; font-weight: 700; color: #b0b7c3;
+      text-transform: uppercase; letter-spacing: 0.6px;
     }
     .dato-valor {
-      font-size: 15px; font-weight: 600; color: #111827;
-    }
-    .dato-valor.grande {
-      font-size: 22px; font-weight: 800; color: #111827; letter-spacing: -0.5px;
+      font-size: 14.5px; font-weight: 600; color: #111827;
     }
     .dato-valor.verde  { color: #059669; }
     .dato-valor.rojo   { color: #dc2626; }
     .dato-valor.gris   { color: #9ca3af; }
 
-    /* MONTOS */
+    /* ── MONTOS CARD ── */
     .montos-grid {
       display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0;
-      border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;
+      border: 1.5px solid #e5e7eb; border-radius: 12px; overflow: hidden;
     }
     .monto-item {
-      padding: 14px 16px;
-      border-right: 1px solid #e5e7eb;
-      display: flex; flex-direction: column; gap: 4px;
+      padding: 16px 18px;
+      border-right: 1.5px solid #e5e7eb;
+      display: flex; flex-direction: column; gap: 5px;
+      background: #fafafa;
     }
     .monto-item:last-child { border-right: none; }
-    .monto-label { font-size: 10px; font-weight: 700; color: #9ca3af; letter-spacing: 0.8px; text-transform: uppercase; }
-    .monto-valor { font-size: 18px; font-weight: 800; color: #111827; }
+    .monto-label {
+      font-size: 9.5px; font-weight: 800; color: #b0b7c3;
+      letter-spacing: 0.9px; text-transform: uppercase;
+    }
+    .monto-valor {
+      font-size: 20px; font-weight: 900; color: #111827; letter-spacing: -.3px;
+    }
     .monto-valor.verde { color: #059669; }
     .monto-valor.rojo  { color: #dc2626; }
-    .monto-valor.gris  { color: #9ca3af; }
+    .monto-valor.gris  { color: #c4c9d4; }
 
-    /* FOOTER */
+    /* ── FOOTER ── */
     .voucher-footer {
-      background: #f9fafb; padding: 16px 32px;
-      text-align: center; font-size: 11px; color: #9ca3af; font-weight: 500;
+      background: #1e3a5f;
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-academia {
+      font-size: 11px; color: rgba(255,255,255,.5); font-weight: 600;
+    }
+    .footer-nota {
+      font-size: 10px; color: rgba(255,255,255,.35); font-weight: 500;
+      text-align: right;
     }
 
     @media print {
       body { background: #fff; padding: 0; }
       .voucher { box-shadow: none; border-radius: 0; width: 100%; }
-      @page { margin: 12mm; }
+      @page { margin: 10mm; size: A4; }
     }
   </style>
 </head>
 <body>
   <div class="voucher">
 
+    <!-- CABECERA ACADEMIA -->
     <div class="voucher-header">
-      <div class="voucher-logo">Comprobante de mensualidad</div>
-      <div class="voucher-titulo">${m.nombres} ${m.apellidos}</div>
-      <div class="voucher-sub">${m.curso}</div>
-      <div class="voucher-emisión">Emitido el ${fechaEmision}</div>
+      <div class="header-deco"></div>
+      <div class="header-deco2"></div>
+
+      <div class="header-top">
+        <div class="academia-info">
+          <div class="academia-brand">
+            <div class="academia-icon">🦉</div>
+            <div class="academia-nombre">Academia Ztrilce</div>
+          </div>
+          <div class="academia-detalle">
+            📍 Jr. Revilla Pérez 325, Cajamarca<br/>
+            📞 946 323 273
+          </div>
+        </div>
+        <div class="comprobante-tag">
+          <div class="comp-etiqueta">Comprobante</div>
+          <div class="comp-numero">${nroComprobante}</div>
+          <div class="comp-fecha">Emitido el ${fechaEmision}, ${horaEmision}</div>
+        </div>
+      </div>
+
+      <hr class="header-divider"/>
+
+      <div class="header-alumno">
+        <div class="alumno-etiqueta">Comprobante de mensualidad</div>
+        <div class="alumno-nombre">${m.nombres} ${m.apellidos}</div>
+        <div class="alumno-curso">${m.curso}</div>
+      </div>
     </div>
 
+    <!-- ESTADO -->
     <div class="badge-wrap">
-      <span class="badge">${estadoLabel}</span>
+      <span class="badge">
+        <span class="badge-dot"></span>
+        ${estadoLabel}
+      </span>
+      <span class="badge-emision">Generado el ${fechaEmision}</span>
     </div>
 
     <!-- DATOS DEL ALUMNO -->
@@ -263,18 +387,18 @@ const imprimirMensualidad = (m, estado) => {
           <span class="dato-label">Alumno</span>
           <span class="dato-valor">${m.nombres} ${m.apellidos}</span>
         </div>
-        <div class="dato full">
+        <div class="dato">
           <span class="dato-label">Apoderado</span>
           <span class="dato-valor">${m.apoderado || "—"}</span>
         </div>
-        <div class="dato full">
+        <div class="dato">
           <span class="dato-label">Curso</span>
           <span class="dato-valor">${m.curso}</span>
         </div>
       </div>
     </div>
 
-    <!-- FECHAS -->
+    <!-- PERÍODO -->
     <div class="seccion">
       <div class="seccion-titulo">Período de pago</div>
       <div class="datos-grid">
@@ -290,11 +414,10 @@ const imprimirMensualidad = (m, estado) => {
           <span class="dato-label">Período</span>
           <span class="dato-valor">${m.periodo || "—"}</span>
         </div>
-        ${m.fecha_primer_pago ? `
         <div class="dato">
           <span class="dato-label">Fecha de pago</span>
-          <span class="dato-valor">${formatFecha(m.fecha_primer_pago)}</span>
-        </div>` : ""}
+          <span class="dato-valor">${m.fecha_primer_pago ? formatFecha(m.fecha_primer_pago) : "—"}</span>
+        </div>
       </div>
     </div>
 
@@ -317,8 +440,10 @@ const imprimirMensualidad = (m, estado) => {
       </div>
     </div>
 
+    <!-- FOOTER -->
     <div class="voucher-footer">
-      Documento generado automáticamente — Solo informativo
+      <span class="footer-academia">🦉 Academia Ztrilce · Cajamarca</span>
+      <span class="footer-nota">Documento generado automáticamente<br/>Solo informativo · No válido como boleta</span>
     </div>
   </div>
 
@@ -328,7 +453,7 @@ const imprimirMensualidad = (m, estado) => {
 </body>
 </html>`;
 
-  const ventana = window.open("", "_blank", "width=660,height=860");
+  const ventana = window.open("", "_blank", "width=680,height=920");
   ventana.document.write(html);
   ventana.document.close();
 };
