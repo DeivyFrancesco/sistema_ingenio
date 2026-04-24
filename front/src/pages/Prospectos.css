@@ -26,6 +26,13 @@
   min-height: 100vh;
   padding: 28px 32px;
   color: var(--text);
+  box-sizing: border-box;
+}
+
+.prospectos-container *,
+.prospectos-container *::before,
+.prospectos-container *::after {
+  box-sizing: border-box;
 }
 
 /* ===== HEADER ===== */
@@ -287,6 +294,10 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+  border: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-wrap {
@@ -294,6 +305,8 @@
   flex: 1;
   min-width: 220px;
   max-width: 380px;
+  border: none;
+  outline: none;
 }
 
 .search-icon {
@@ -392,7 +405,7 @@
 
 .table-wrapper { overflow-x: auto; }
 
-.prospectos-container table { width: 100%; border-collapse: collapse; .prospectos-container table-layout: fixed; }
+.prospectos-container table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 
 .prospectos-container thead th {
   padding: 13px 16px;
@@ -408,26 +421,34 @@
   overflow: hidden;
 }
 
-.prospectos-container .prospectos-container thead th.sortable { cursor: pointer; user-select: none; }
-.prospectos-container .prospectos-container .prospectos-container thead th.sortable:hover { color: var(--orange); }
+.prospectos-container thead th.sortable { cursor: pointer; user-select: none; }
+.prospectos-container thead th.sortable:hover { color: var(--orange); }
 
 /* Column widths */
-.prospectos-container .prospectos-container thead th:nth-child(1) { width: 44px; }   /* # */
-.prospectos-container .prospectos-container thead th:nth-child(2) { width: 200px; }  /* Prospecto */
-.prospectos-container .prospectos-container thead th:nth-child(3) { width: 130px; }  /* Teléfono */
-.prospectos-container .prospectos-container thead th:nth-child(4) { width: 60px; }   /* Grado */
-.prospectos-container .prospectos-container thead th:nth-child(5) { width: 130px; }  /* Fecha */
-.prospectos-container .prospectos-container thead th:nth-child(6) { width: 120px; }  /* Estado */
-.prospectos-container .prospectos-container thead th:nth-child(7) { width: 180px; }  /* Notas */
-.prospectos-container .prospectos-container thead th:nth-child(8) { width: 90px; }   /* Acciones */
+.prospectos-container thead th:nth-child(1),
+.prospectos-container td:nth-child(1) { width: 44px;  text-align: center; }  /* # */
+.prospectos-container thead th:nth-child(2),
+.prospectos-container td:nth-child(2) { width: 190px; }                       /* Padre/Alumno */
+.prospectos-container thead th:nth-child(3),
+.prospectos-container td:nth-child(3) { width: 120px; white-space: nowrap; }  /* Celular */
+.prospectos-container thead th:nth-child(4),
+.prospectos-container td:nth-child(4) { width: 110px; }                       /* Grado */
+.prospectos-container thead th:nth-child(5),
+.prospectos-container td:nth-child(5) { width: 130px; }                       /* Fecha */
+.prospectos-container thead th:nth-child(6),
+.prospectos-container td:nth-child(6) { width: 110px; }                       /* Estado */
+.prospectos-container thead th:nth-child(7),
+.prospectos-container td:nth-child(7) { width: 180px; }                       /* Notas */
+.prospectos-container thead th:nth-child(8),
+.prospectos-container td:nth-child(8) { width: 80px;  text-align: center; }   /* Acciones */
 
 .prospectos-container tbody tr {
   border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
-.prospectos-container .prospectos-container tbody tr:last-child { border-bottom: none; }
-.prospectos-container .prospectos-container tbody tr:hover { background: #fff7ed; }
+.prospectos-container tbody tr:last-child { border-bottom: none; }
+.prospectos-container tbody tr:hover { background: #fff7ed; }
 
 .prospectos-container td {
   padding: 14px 16px;
@@ -621,6 +642,6 @@
   .search-wrap { max-width: 100%; }
   .pr-stats { grid-template-columns: repeat(2, 1fr); }
   .table-wrapper { overflow-x: scroll; }
-  .prospectos-container table { min-width: 700px; .prospectos-container table-layout: auto; }
+  .prospectos-container table { min-width: 700px; table-layout: auto; }
   .pagination-bar { justify-content: center; }
 }
