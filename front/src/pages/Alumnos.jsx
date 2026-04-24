@@ -8,7 +8,26 @@ import {
   toggleAlumnoActivo,
 } from "../services/alumnos.service";
 
-const GRADOS = ["Inicial", "1°", "2°", "3°", "4°", "5°", "6°", "Primaria", "Secundaria"];
+const GRADOS_POR_NIVEL = {
+  "Primaria":      ["1ro Primaria", "2do Primaria", "3ro Primaria", "4to Primaria", "5to Primaria", "6to Primaria"],
+  "Secundaria":    ["1ro Secundaria", "2do Secundaria", "3ro Secundaria", "4to Secundaria", "5to Secundaria"],
+  "Superior":      ["Preuniversitario", "Universitario"],
+};
+
+/* Lista plana para compatibilidad con datos viejos al mostrar en tabla */
+const TODOS_LOS_GRADOS = Object.values(GRADOS_POR_NIVEL).flat();
+
+/* Detecta a qué nivel pertenece un grado (nuevo o viejo) */
+const getNivel = (grado) => {
+  if (!grado) return "";
+  if (["1ro Primaria","2do Primaria","3ro Primaria","4to Primaria","5to Primaria","6to Primaria",
+       "1°","2°","3°","4°","5°","6°","Primaria","Inicial"].includes(grado)) return "Primaria";
+  if (["1ro Secundaria","2do Secundaria","3ro Secundaria","4to Secundaria","5to Secundaria",
+       "Secundaria"].includes(grado)) return "Secundaria";
+  if (["Preuniversitario","Universitario"].includes(grado)) return "Superior";
+  return "";
+};
+
 const PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 const DIAS_SEMANA = [
@@ -29,6 +48,7 @@ const Alumnos = () => {
   const [editId, setEditId]             = useState(null);
   const [searchTerm, setSearchTerm]     = useState("");
   const [gradoFilter, setGradoFilter]   = useState("");
+  const [nivelFilter, setNivelFilter]   = useState("");
   const [sortField, setSortField]       = useState("apellidos");
   const [sortDir, setSortDir]           = useState("asc");
   const [showForm, setShowForm]         = useState(false);
@@ -69,7 +89,7 @@ const Alumnos = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  useEffect(() => { setPage(1); }, [searchTerm, gradoFilter, sortField, sortDir, mostrarRetirados]);
+  useEffect(() => { setPage(1); }, [searchTerm, gradoFilter, nivelFilter, sortField, sortDir, mostrarRetirados]);
 
   const showMsg = (text, type = "success") => {
     setMensaje({ text, type });
@@ -166,6 +186,7 @@ const Alumnos = () => {
 
   const filtered = useMemo(() => {
     let list = [...alumnos];
+    if (nivelFilter) list = list.filter(a => getNivel(a.grado) === nivelFilter);
     if (gradoFilter) list = list.filter(a => a.grado === gradoFilter);
     list.sort((a, b) => {
       let va = (a[sortField] || "").toString().toLowerCase();
@@ -173,7 +194,7 @@ const Alumnos = () => {
       return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
     });
     return list;
-  }, [alumnos, gradoFilter, sortField, sortDir]);
+  }, [alumnos, gradoFilter, nivelFilter, sortField, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated  = filtered.slice((page - 1) * perPage, page * perPage);
@@ -273,7 +294,11 @@ const Alumnos = () => {
                 <label>Grado</label>
                 <select name="grado" value={form.grado} onChange={handleChange}>
                   <option value="">Sin grado</option>
-                  {GRADOS.map(g => <option key={g} value={g}>{g}</option>)}
+                  {Object.entries(GRADOS_POR_NIVEL).map(([nivel, grados]) => (
+                    <optgroup key={nivel} label={`── ${nivel.toUpperCase()} ──`}>
+                      {grados.map(g => <option key={g} value={g}>{g}</option>)}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
               <div className="form-group dias-asistencia-group">
@@ -317,11 +342,34 @@ const Alumnos = () => {
           />
         </div>
         <div className="filter-group">
-          <span className="filter-label">Grado:</span>
-          <select className="filter-select" value={gradoFilter} onChange={(e) => setGradoFilter(e.target.value)}>
+          <span className="filter-label">Nivel:</span>
+          <select
+            className="filter-select"
+            value={nivelFilter}
+            onChange={(e) => { setNivelFilter(e.target.value); setGradoFilter(""); }}
+          >
             <option value="">Todos</option>
-            {GRADOS.map(g => <option key={g} value={g}>{g}</option>)}
+            <option value="Primaria">🏫 Primaria</option>
+            <option value="Secundaria">📚 Secundaria</option>
+            <option value="Superior">🎓 Superior</option>
           </select>
+
+          {nivelFilter && (
+            <>
+              <span className="filter-label">Grado:</span>
+              <select
+                className="filter-select"
+                value={gradoFilter}
+                onChange={(e) => setGradoFilter(e.target.value)}
+              >
+                <option value="">Todos</option>
+                {(GRADOS_POR_NIVEL[nivelFilter] || []).map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </>
+          )}
+
           <select className="per-page-select" value={perPage} onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}>
             {PER_PAGE_OPTIONS.map(n => <option key={n} value={n}>{n} por página</option>)}
           </select>

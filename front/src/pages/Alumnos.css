@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500&display=swap');
 
-/* ===== ROOT VARS ===== */
-:root {
+/* ===== CONTAINER ===== */
+.alumnos-container {
   --primary: #4f46e5;
   --primary-light: #818cf8;
   --primary-dark: #3730a3;
@@ -19,10 +19,7 @@
   --shadow-lg: 0 10px 40px rgba(79, 70, 229, 0.18);
   --font: 'Nunito', sans-serif;
   --mono: 'JetBrains Mono', monospace;
-}
 
-/* ===== CONTAINER ===== */
-.alumnos-container {
   font-family: var(--font);
   background: var(--bg);
   min-height: 100vh;
@@ -163,7 +160,7 @@
   background: #f5f5f5 !important;
 }
 
-.row-retirado td {
+.row-retirado .alumnos-container td {
   color: var(--text-muted) !important;
 }
 
@@ -466,12 +463,12 @@
   overflow-x: auto;
 }
 
-table {
+.alumnos-container table {
   width: 100%;
   border-collapse: collapse;
 }
 
-thead th {
+.alumnos-container thead th {
   padding: 13px 16px;
   text-align: left;
   font-size: 11px;
@@ -484,22 +481,22 @@ thead th {
   white-space: nowrap;
 }
 
-thead th.sortable {
+.alumnos-container thead th.sortable {
   cursor: pointer;
   user-select: none;
 }
 
-thead th.sortable:hover { color: var(--primary); }
+.alumnos-container thead th.sortable:hover { color: var(--primary); }
 
-tbody tr {
+.alumnos-container tbody tr {
   border-bottom: 1px solid var(--border);
   transition: background 0.15s;
 }
 
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: #f5f7ff; }
+.alumnos-container tbody tr:last-child { border-bottom: none; }
+.alumnos-container tbody tr:hover { background: #f5f7ff; }
 
-td {
+.alumnos-container td {
   padding: 14px 16px;
   font-size: 14px;
   color: var(--text);
@@ -672,6 +669,24 @@ td {
   cursor: pointer;
 }
 
+
+/* ── ANCHOS DE COLUMNA ── */
+.alumnos-container table { table-layout: auto; }
+.alumnos-container thead th:nth-child(1),
+.alumnos-container td:nth-child(1) { width: 40px;   text-align: center; }  /* # */
+.alumnos-container thead th:nth-child(2),
+.alumnos-container td:nth-child(2) { width: 110px;  white-space: nowrap; } /* DNI */
+.alumnos-container thead th:nth-child(3),
+.alumnos-container td:nth-child(3) { min-width: 180px; }                   /* Alumno */
+.alumnos-container thead th:nth-child(4),
+.alumnos-container td:nth-child(4) { width: 130px;  white-space: nowrap; } /* Grado */
+.alumnos-container thead th:nth-child(5),
+.alumnos-container td:nth-child(5) { width: 120px;  white-space: nowrap; } /* Teléfono */
+.alumnos-container thead th:nth-child(6),
+.alumnos-container td:nth-child(6) { min-width: 140px; }                   /* Días asistencia */
+.alumnos-container thead th:nth-child(7),
+.alumnos-container td:nth-child(7) { width: 110px;  text-align: center; }  /* Acciones */
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .alumnos-container { padding: 16px; }
@@ -679,7 +694,8 @@ td {
   .al-toolbar { flex-direction: column; align-items: stretch; }
   .search-wrap { max-width: 100%; }
   .table-wrapper { overflow-x: scroll; }
-  table { min-width: 560px; }
+  .alumnos-container table { min-width: 560px; }
   .pagination-bar { justify-content: center; }
   .toggle-retirados-label { width: 100%; justify-content: space-between; }
 }
+
