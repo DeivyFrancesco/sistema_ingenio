@@ -52,6 +52,20 @@ const getFechaClass = (fechaStr) => {
   return "";
 };
 
+/* ── NOTA EXPANDIBLE ── */
+const NotaExpandible = ({ texto }) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <span
+      className={`nota-text${expanded ? " expanded" : ""}`}
+      onClick={() => setExpanded(e => !e)}
+      title={expanded ? "Clic para colapsar" : "Clic para ver todo"}
+    >
+      {texto}
+    </span>
+  );
+};
+
 const Prospectos = () => {
   const [prospectos, setProspectos]   = useState([]);
   const [form, setForm]               = useState(EMPTY_FORM);
@@ -502,7 +516,7 @@ const Prospectos = () => {
                       </td>
                       <td>
                         {p.notas
-                          ? <span className="nota-text" title={p.notas}>{p.notas}</span>
+                          ? <NotaExpandible texto={p.notas} />
                           : <span style={{ color: "#cbd5e1" }}>—</span>}
                       </td>
                       <td>
