@@ -22,6 +22,7 @@ const listarPorFecha = async (req, res) => {
             JOIN LATERAL (
                 SELECT id FROM matriculas
                 WHERE alumno_id = a.id
+                  AND estado = 'ACTIVO'
                 ORDER BY id DESC
                 LIMIT 1
             ) m ON true
@@ -99,7 +100,7 @@ const marcarAsistencia = async (req, res) => {
 
     // Obtener la matrícula más reciente del alumno
     const matResult = await pool.query(
-      "SELECT id FROM matriculas WHERE alumno_id = $1 ORDER BY id DESC LIMIT 1",
+      "SELECT id FROM matriculas WHERE alumno_id = $1 AND estado = 'ACTIVO' ORDER BY id DESC LIMIT 1",
       [alumno_id]
     );
 
@@ -161,7 +162,7 @@ const marcarLote = async (req, res) => {
 
     for (const alumno_id of alumno_ids) {
       const matResult = await client.query(
-        "SELECT id FROM matriculas WHERE alumno_id = $1 ORDER BY id DESC LIMIT 1",
+        "SELECT id FROM matriculas WHERE alumno_id = $1 AND estado = 'ACTIVO' ORDER BY id DESC LIMIT 1",
         [alumno_id]
       );
 
