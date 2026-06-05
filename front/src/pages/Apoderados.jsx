@@ -26,16 +26,13 @@ const Apoderados = () => {
   const [filterConAlumnos, setFilterConAlumnos] = useState("todos");
   const [mensaje, setMensaje] = useState({ text: "", type: "" });
   const [initialLoad, setInitialLoad] = useState(true);
-  const [searching, setSearching] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
 
-  const cargarDatos = async (isSearch = false) => {
+  const cargarDatos = async () => {
     try {
-      if (isSearch) setSearching(true);
-      else setInitialLoad(true);
-      const params = searchTerm ? { buscar: searchTerm } : {};
-      const [resAp, resAl] = await Promise.all([getApoderados(params), getAlumnos()]);
+      setInitialLoad(true);
+      const [resAp, resAl] = await Promise.all([getApoderados({}), getAlumnos()]);
       setApoderados(resAp.data.apoderados || resAp.data);
       setAlumnos(resAl.data.alumnos || resAl.data);
     } catch (error) {
@@ -43,22 +40,10 @@ const Apoderados = () => {
       showMsg("Error al cargar datos", "error");
     } finally {
       setInitialLoad(false);
-      setSearching(false);
     }
   };
 
-  // Carga inicial
-  useEffect(() => {
-    cargarDatos(false);
-  }, []);
-
-  // Búsqueda con debounce — no desmonta el componente
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      cargarDatos(true);
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  useEffect(() => { cargarDatos(); }, []);
   useEffect(() => { setPage(1); }, [searchTerm, filterConAlumnos, sortField, sortDir]);
 
   const showMsg = (text, type = "success") => {
@@ -83,7 +68,7 @@ const Apoderados = () => {
         showMsg("✅ Apoderado registrado correctamente", "success");
       }
       resetForm();
-      setSearchTerm("");
+      cargarDatos();
     } catch (error) {
       const msg = error.response?.data?.error || "Error al guardar apoderado";
       showMsg(`❌ ${msg}`, "error");
@@ -155,15 +140,33 @@ const Apoderados = () => {
 
   const filtered = useMemo(() => {
     let list = [...apoderados];
+
+    // Filtro por búsqueda: apoderado O alumno vinculado
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      list = list.filter((a) => {
+        const matchApoderado = (a.nombres || "").toLowerCase().includes(s) ||
+                               (a.telefono || "").includes(s);
+        const matchAlumno = (a.alumnos || []).some(
+          (al) =>
+            (al.alumno_nombres || "").toLowerCase().includes(s) ||
+            (al.alumno_apellidos || "").toLowerCase().includes(s) ||
+            (al.alumno_dni || "").includes(s)
+        );
+        return matchApoderado || matchAlumno;
+      });
+    }
+
     if (filterConAlumnos === "con") list = list.filter(tieneAlumnos);
     if (filterConAlumnos === "sin") list = list.filter(a => !tieneAlumnos(a));
+
     list.sort((a, b) => {
       let va = (a[sortField] || "").toString().toLowerCase();
       let vb = (b[sortField] || "").toString().toLowerCase();
       return sortDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va);
     });
     return list;
-  }, [apoderados, filterConAlumnos, sortField, sortDir]);
+  }, [apoderados, searchTerm, filterConAlumnos, sortField, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paginated = filtered.slice((page - 1) * perPage, page * perPage);
@@ -193,7 +196,6 @@ const Apoderados = () => {
 
   return (
     <div className="apoderados-container">
-      {/* HEADER */}
       <div className="ap-header">
         <div className="ap-header-left">
           <div className="ap-icon-box">👨‍👩‍👧‍👦</div>
@@ -246,11 +248,11 @@ const Apoderados = () => {
       {/* TOOLBAR */}
       <div className="ap-toolbar">
         <div className="search-wrap">
-          <span className="search-icon">{searching ? "⏳" : "🔍"}</span>
+          <span className="search-icon">🔍</span>
           <input
             type="text"
             className="search-input"
-            placeholder="Buscar apoderado..."
+            placeholder="Buscar por apoderado o alumno..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
